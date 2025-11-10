@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Màu khi được focus (người dùng bấm vào) --><item android:color="#567DF4" android:state_focused="true"/>
+
+    <!-- Màu khi di chuột qua (hovered) - Tùy chọn -->
+    <item android:color="#7B7F9E" android:state_hovered="true"/>
+
+    <!-- Màu ở trạng thái bình thường (mặc định) -->
+    <item android:color="#C1C2D6"/>
+</selector>
