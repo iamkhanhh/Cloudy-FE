@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CloudStorage">
         <activity
+            android:name=".my_profiile"
+            android:exported="false" />
+        <activity
             android:name=".HomePage"
             android:exported="false" />
         <activity
