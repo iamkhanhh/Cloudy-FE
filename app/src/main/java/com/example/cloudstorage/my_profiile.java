@@ -1,6 +1,9 @@
 package com.example.cloudstorage;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,8 +19,15 @@ public class my_profiile extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_my_profiile);
 
+        ImageView btn_back = findViewById(R.id.btn_back);
 
-
+        btn_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent it = new Intent(my_profiile.this, HomePage.class);
+                startActivity(it);
+            }
+        });
 
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
