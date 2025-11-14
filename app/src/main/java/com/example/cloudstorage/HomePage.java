@@ -1,8 +1,10 @@
 package com.example.cloudstorage;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +24,8 @@ public class HomePage extends AppCompatActivity {
 
         DrawerLayout drawerLayout =  findViewById(R.id.main);
         ImageView menuIcon = findViewById(R.id.menu_icon);
+        TextView btn_nav_profile = findViewById(R.id.nav_profile_text);
+
 
         menuIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -38,6 +42,14 @@ public class HomePage extends AppCompatActivity {
                 if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
                     drawerLayout.closeDrawer(GravityCompat.START);
                 }
+            }
+        });
+
+        btn_nav_profile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent it = new Intent(HomePage.this, my_profiile.class);
+                startActivity(it);
             }
         });
 
