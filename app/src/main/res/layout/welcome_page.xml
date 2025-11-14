@@ -119,34 +119,47 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/gilroy_bold"
+            android:text="Phone number"
+            android:textColor="#22215B"
+            android:textSize="14sp"
+            android:layout_marginTop="16dp" />
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/InputRoundedInputLayout">
+
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/phone_number_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Phone Number"
-                android:inputType="phone">
-
-            </com.google.android.material.textfield.TextInputEditText>
-
+                android:hint="Enter your phone number"
+                android:inputType="phone" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/gilroy_bold"
+            android:text="Password"
+            android:textColor="#22215B"
+            android:textSize="14sp"
+            android:layout_marginTop="10dp" />
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:passwordToggleEnabled="true"
-            style="@style/InputRoundedInputLayout">
+            style="@style/InputRoundedInputLayout"
+            app:passwordToggleEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/password_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Password"
+                android:hint="Enter your password"
                 android:inputType="textPassword" />
-
         </com.google.android.material.textfield.TextInputLayout>
 
     </LinearLayout>
