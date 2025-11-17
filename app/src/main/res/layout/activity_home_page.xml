@@ -85,17 +85,19 @@
         </LinearLayout>
 
 <!--        Folders-->
+
         <com.google.android.flexbox.FlexboxLayout
             android:id="@+id/folderslist"
             android:layout_width="match_parent"
             app:layout_constraintWidth_percent="0.9"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
+            android:paddingStart="30dp"
+            android:paddingEnd="30dp"
             app:flexWrap="wrap"
             app:flexDirection="row"
             app:showDivider="middle"
+            app:justifyContent="space_between"
             app:dividerDrawable="@drawable/divider"
             >
 
