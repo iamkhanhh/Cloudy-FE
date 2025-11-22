@@ -151,10 +151,6 @@
                 style="@style/NavMenuItem"
                 android:text="Shared" />
 
-            <TextView
-                android:id="@+id/nav_stats_text"
-                style="@style/NavMenuItem"
-                android:text="Stats" />
 
             <TextView
                 android:id="@+id/nav_settings_text"
@@ -169,12 +165,6 @@
                 android:layout_marginBottom="8dp"
                 android:background="#E0E0E0" />
 
-            <TextView
-                style="@style/NavMenuItem"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Support"
-                android:textColor="@color/black" />
 
             <TextView
                 android:id="@+id/nav_help_text"
@@ -184,16 +174,35 @@
         </LinearLayout>
     </ScrollView>
 
-    <TextView
-        android:id="@+id/nav_logout_text"
-        style="@style/NavMenuItem"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="@id/navmenu"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/items"
+        style="@style/NavMenuItem"
+
+        >
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/ic_logout"
+        android:layout_gravity="center"
+        />
+
+    <TextView
+        android:id="@+id/nav_logout_text"
+        style="@style/NavMenuItem"
+        android:paddingStart="10dp"
+
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="@font/gilroy_extrabold"
         android:text="Logout" />
+
+    </LinearLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
