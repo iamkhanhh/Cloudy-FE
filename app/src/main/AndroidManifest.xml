@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CloudStorage">
         <activity
+            android:name=".storage_details"
+            android:exported="false" />
+        <activity
             android:name=".help_report"
             android:exported="false" />
         <activity

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F9FF"
+    tools:context=".storage_details">
+
+    <!-- ========== Thanh tiêu đề (Header) ========== -->
+    <LinearLayout
+        android:id="@+id/header_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:orientation="vertical"
+        android:paddingTop="50dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        >
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_back"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.1"
+            />
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:fontFamily="@font/gilroy_bold"
+            android:text="Storage Details"
+            android:textColor="#22215B"
+            android:textSize="30sp"
+            />
+
+
+    </LinearLayout>
+
+    <!-- ========== Biểu đồ dung lượng tổng quan ========== -->
+    <FrameLayout
+        android:id="@+id/chart_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/header_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ProgressBar
+            android:id="@+id/storage_progressbar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:max="100"
+            android:progress="85"
+            android:progressDrawable="@drawable/circle_progress_bar"
+            android:rotation="-90" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_gravity="center">
+
+            <TextView
+                android:id="@+id/used_space_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/gilroy_bold"
+                android:text="37.5 GB"
+                android:textColor="#22215B"
+                android:textSize="28sp" />
+
+            <TextView
+                android:id="@+id/total_space_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/gilroy_medium"
+                android:text="Used of 50 GB"
+                android:textColor="#7B7F9E"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <!-- ========== Danh sách phân loại dung lượng ========== -->
+    <LinearLayout
+        android:id="@+id/storage_breakdown_list"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="32dp"
+        android:paddingHorizontal="16dp"
+        android:showDividers="middle"
+        app:layout_constraintTop_toBottomOf="@id/chart_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_percent="0.95">
+
+        <!-- Mục Images -->
+        <include layout="@layout/storage_item_layout"
+            android:id="@+id/item_images"/>
+
+        <!-- Mục Videos -->
+        <include layout="@layout/storage_item_layout"
+            android:id="@+id/item_videos"/>
+
+        <!-- Mục Documents -->
+        <include layout="@layout/storage_item_layout"
+            android:id="@+id/item_documents"/>
+
+        <!-- Mục Audio -->
+        <include layout="@layout/storage_item_layout"
+            android:id="@+id/item_audio"/>
+
+        <!-- Mục Others -->
+        <include layout="@layout/storage_item_layout"
+            android:id="@+id/item_others"/>
+
+    </LinearLayout>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
