@@ -155,7 +155,7 @@
             <TextView
                 android:id="@+id/nav_settings_text"
                 style="@style/NavMenuItem"
-                android:text="Settings" />
+                android:text="Change Password" />
 
             <!-- Đường kẻ phân cách -->
             <View

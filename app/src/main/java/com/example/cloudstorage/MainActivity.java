@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         // 1. Tìm các View bằng ID của chúng từ file XML
-        Button signInButton = findViewById(R.id.button2);
+        Button signInButton = findViewById(R.id.btn_submit);
         View createAccountLink = findViewById(R.id.createAccountLink);
 
 

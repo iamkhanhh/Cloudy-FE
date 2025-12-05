@@ -14,6 +14,10 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+
+import com.bumptech.glide.Glide;
+
+
 public class HomePage extends AppCompatActivity {
 
     @Override
@@ -52,6 +56,16 @@ public class HomePage extends AppCompatActivity {
                 startActivity(it);
             }
         });
+
+
+        // Find the ImageView by its ID
+        ImageView imageView = findViewById(R.id.folder_image_1);
+
+        // Define the image URL
+        String imageUrl = "https://media-cdn-v2.laodong.vn/Storage/NewsPortal/2020/2/21/785984/D.jpg";
+
+        // Use Glide to load the image from the URL into the ImageView
+        Glide.with(this).load(imageUrl).into(imageView);
 
 
 
