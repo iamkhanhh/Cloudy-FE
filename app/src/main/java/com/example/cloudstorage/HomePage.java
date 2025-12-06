@@ -16,9 +16,11 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 
 import com.bumptech.glide.Glide;
+import com.example.cloudstorage.utils.TokenManager;
 
 
 public class HomePage extends AppCompatActivity {
+    private TokenManager tokenManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +31,7 @@ public class HomePage extends AppCompatActivity {
         DrawerLayout drawerLayout =  findViewById(R.id.main);
         ImageView menuIcon = findViewById(R.id.menu_icon);
         TextView btn_nav_profile = findViewById(R.id.nav_profile_text);
-
+        TextView nav_logout_text = findViewById(R.id.nav_logout_text);
 
         menuIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,6 +59,12 @@ public class HomePage extends AppCompatActivity {
             }
         });
 
+        nav_logout_text.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                handleLogout();
+            }
+        });
 
         // Find the ImageView by its ID
         ImageView imageView = findViewById(R.id.folder_image_1);
@@ -67,13 +75,28 @@ public class HomePage extends AppCompatActivity {
         // Use Glide to load the image from the URL into the ImageView
         Glide.with(this).load(imageUrl).into(imageView);
 
-
-
-
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+    }
+
+    /**
+     * Xử lý logout
+     */
+    private void handleLogout() {
+        tokenManager.clearToken();
+        navigateToLogin();
+    }
+
+    /**
+     * Chuyển về màn hình login
+     */
+    private void navigateToLogin() {
+        Intent intent = new Intent(HomePage.this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }
