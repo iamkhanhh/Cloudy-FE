@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- Permission để kết nối Internet -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -16,6 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CloudStorage"
         android:usesCleartextTraffic="true">
+        <activity
+            android:name=".VerificationPage"
+            android:exported="false" />
         <activity
             android:name=".storage_details"
             android:exported="false" />
@@ -44,7 +46,5 @@
             </intent-filter>
         </activity>
     </application>
-
-    <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>
