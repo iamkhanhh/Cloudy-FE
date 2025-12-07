@@ -28,10 +28,13 @@ public class HomePage extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home_page);
 
+        tokenManager = new TokenManager(this);
+
         DrawerLayout drawerLayout =  findViewById(R.id.main);
         ImageView menuIcon = findViewById(R.id.menu_icon);
         TextView btn_nav_profile = findViewById(R.id.nav_profile_text);
         TextView nav_logout_text = findViewById(R.id.nav_logout_text);
+        TextView nav_settings_text = findViewById(R.id.nav_settings_text);
 
         menuIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,6 +66,14 @@ public class HomePage extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 handleLogout();
+            }
+        });
+
+        nav_settings_text.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent it = new Intent(HomePage.this, change_password.class);
+                startActivity(it);
             }
         });
 

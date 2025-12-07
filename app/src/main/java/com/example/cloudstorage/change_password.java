@@ -20,6 +20,8 @@ import com.example.cloudstorage.models.ChangePasswordRequest;
 import com.example.cloudstorage.utils.TokenManager;
 import com.google.android.material.textfield.TextInputEditText;
 
+import org.json.JSONObject;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -162,7 +164,9 @@ public class change_password extends AppCompatActivity {
 
                             try {
                                 if (response.errorBody() != null) {
-                                    errorMsg = response.errorBody().string();
+                                    String errorJson = response.errorBody().string();
+                                    JSONObject obj = new JSONObject(errorJson);
+                                    errorMsg = obj.optString("message", "Đổi mật khẩu thất bại");
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
