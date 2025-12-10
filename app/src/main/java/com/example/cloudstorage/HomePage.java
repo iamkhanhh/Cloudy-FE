@@ -28,6 +28,7 @@ public class HomePage extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home_page);
 
+        tokenManager = new TokenManager(this);
         DrawerLayout drawerLayout =  findViewById(R.id.main);
         ImageView menuIcon = findViewById(R.id.menu_icon);
         TextView btn_nav_profile = findViewById(R.id.nav_profile_text);
