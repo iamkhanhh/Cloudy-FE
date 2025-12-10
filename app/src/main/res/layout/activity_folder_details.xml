@@ -7,15 +7,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/main"
-    tools:context=".HomePage">
+    tools:context=".FolderDetails">
 
-<!--    Man hinh chinh-->
+    <!--    Man hinh chinh-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         >
-<!--        Header-->
+        <!--        Header-->
         <FrameLayout
             android:id="@+id/header_layout"
             android:layout_width="match_parent"
@@ -44,48 +44,10 @@
 
             </ImageView>
         </FrameLayout>
-<!--search bar-->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            >
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="24dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:background="@drawable/search_box_background"
-                >
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_search"
-                    app:tint="#22215B" />
 
-                <EditText
-                    android:id="@+id/search_edit_text"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="12dp"
-                    android:layout_weight="1"
-                    android:background="@android:color/transparent"
-                    android:fontFamily="@font/gilroy_medium"
-                    android:hint="Search Folder"
-                    android:imeOptions="actionSearch"
-                    android:inputType="text"
-                    android:textColor="#22215B"
-                    android:textColorHint="#7B7F9E"
-                    android:textSize="16sp" />
-            </LinearLayout>
-        </LinearLayout>
-<!--Folder nav-->
+        <!--Folder nav-->
         <LinearLayout
-            android:id="@+id/recentuploadnav"
+            android:id="@+id/loadnav"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingStart="20dp"
@@ -99,7 +61,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:fontFamily="@font/gilroy_bold"
-                android:text="Recent Upload"
+                android:text="Folder Name"
                 android:textColor="#22215B"
                 android:textSize="18dp" />
 
@@ -123,9 +85,11 @@
             </LinearLayout>
 
 
+
+
         </LinearLayout>
 
-<!--        Folders-->
+        <!--        Folders-->
 
         <ScrollView
             android:layout_width="match_parent"
@@ -147,158 +111,7 @@
                 app:layout_constraintWidth_percent="0.9"
                 app:showDivider="middle">
 
-                <LinearLayout
-                    android:id="@+id/folder1"
-                    android:layout_width="160dp"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/curved_background"
-                    android:orientation="vertical"
-                    android:padding="16dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:src="@drawable/folder" />
-
-                        <Space
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1" />
-
-                        <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:layout_gravity="center_vertical"
-                            android:src="@drawable/ic_vertical_option" />
-
-                    </LinearLayout>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:fontFamily="@font/gilroy_bold"
-                        android:text="Mobile Apps"
-                        android:textColor="#22215B" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/gilroy_regular"
-                        android:text="December 20.2020"
-                        android:textColor="#22215B"
-                        android:textSize="12dp"
-
-                        />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/folder2"
-                    android:layout_width="160dp"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/curved_background"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:src="@drawable/folder" />
-
-                        <Space
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1" />
-
-                        <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:layout_gravity="center_vertical"
-                            android:src="@drawable/ic_vertical_option" />
-
-                    </LinearLayout>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:fontFamily="@font/gilroy_bold"
-                        android:text="Mobile Apps"
-                        android:textColor="#22215B" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/gilroy_regular"
-                        android:text="December 20.2020"
-                        android:textColor="#22215B"
-                        android:textSize="12dp"
-
-                        />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/folder3"
-                    android:layout_width="160dp"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/curved_background"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:src="@drawable/folder" />
-
-                        <Space
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1" />
-
-                        <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:layout_gravity="center_vertical"
-                            android:src="@drawable/ic_vertical_option" />
-
-                    </LinearLayout>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:fontFamily="@font/gilroy_bold"
-                        android:text="Mobile Apps"
-                        android:textColor="#22215B" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/gilroy_regular"
-                        android:text="December 20.2020"
-                        android:textColor="#22215B"
-                        android:textSize="12dp"
-
-                        />
-
-                </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/folder4"
@@ -767,17 +580,17 @@
 
     </LinearLayout>
 
-<!--    Man menu bi khuat-->
+    <!--    Man menu bi khuat-->
     <LinearLayout
-            android:layout_width="280dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="start"
-            android:clickable="true"
-            android:focusable="true"
-            android:orientation="vertical">
+        android:layout_width="280dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="vertical">
 
-            <!-- Nhúng layout menu của bạn vào đây -->
-            <include layout="@layout/nav_menu" />
+        <!-- Nhúng layout menu của bạn vào đây -->
+        <include layout="@layout/nav_menu" />
 
-        </LinearLayout>
+    </LinearLayout>
 </androidx.drawerlayout.widget.DrawerLayout>

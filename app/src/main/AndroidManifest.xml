@@ -17,6 +17,12 @@
         android:theme="@style/Theme.CloudStorage"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".MediaDetail"
+            android:exported="false" />
+        <activity
+            android:name=".FolderDetails"
+            android:exported="false" />
+        <activity
             android:name=".SharedWithMe"
             android:exported="false" />
         <activity

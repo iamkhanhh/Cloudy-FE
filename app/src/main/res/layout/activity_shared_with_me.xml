@@ -7,15 +7,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/main"
-    tools:context=".HomePage">
+    tools:context=".SharedWithMe">
 
-<!--    Man hinh chinh-->
+    <!--    Man hinh chinh-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         >
-<!--        Header-->
+        <!--        Header-->
         <FrameLayout
             android:id="@+id/header_layout"
             android:layout_width="match_parent"
@@ -44,7 +44,7 @@
 
             </ImageView>
         </FrameLayout>
-<!--search bar-->
+        <!--search bar-->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -83,49 +83,32 @@
                     android:textSize="16sp" />
             </LinearLayout>
         </LinearLayout>
-<!--Folder nav-->
+        <!--Folder nav-->
         <LinearLayout
-            android:id="@+id/recentuploadnav"
+            android:id="@+id/loadnav"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingStart="20dp"
             android:paddingEnd="20dp"
             android:layout_marginTop="40dp"
             android:layout_marginBottom="40dp"
-            android:gravity="center"
+            android:gravity="left"
             >
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:fontFamily="@font/gilroy_bold"
-                android:text="Recent Upload"
+                android:text="Shared with me"
                 android:textColor="#22215B"
                 android:textSize="18dp" />
 
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-
-                >
-                <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:layout_marginEnd="20dp"
-                    android:src="@drawable/ic_plus"
-                    />
-
-            </LinearLayout>
 
 
         </LinearLayout>
 
-<!--        Folders-->
+        <!--        Folders-->
 
         <ScrollView
             android:layout_width="match_parent"
@@ -767,17 +750,17 @@
 
     </LinearLayout>
 
-<!--    Man menu bi khuat-->
+    <!--    Man menu bi khuat-->
     <LinearLayout
-            android:layout_width="280dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="start"
-            android:clickable="true"
-            android:focusable="true"
-            android:orientation="vertical">
+        android:layout_width="280dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="vertical">
 
-            <!-- Nhúng layout menu của bạn vào đây -->
-            <include layout="@layout/nav_menu" />
+        <!-- Nhúng layout menu của bạn vào đây -->
+        <include layout="@layout/nav_menu" />
 
-        </LinearLayout>
+    </LinearLayout>
 </androidx.drawerlayout.widget.DrawerLayout>
