@@ -78,13 +78,13 @@ public class HomePage extends AppCompatActivity {
         });
 
         // Find the ImageView by its ID
-        ImageView imageView = findViewById(R.id.folder_image_1);
-
-        // Define the image URL
-        String imageUrl = "https://media-cdn-v2.laodong.vn/Storage/NewsPortal/2020/2/21/785984/D.jpg";
-
-        // Use Glide to load the image from the URL into the ImageView
-        Glide.with(this).load(imageUrl).into(imageView);
+//        ImageView imageView = findViewById(R.id.folder_image_1);
+//
+//        // Define the image URL
+//        String imageUrl = "https://media-cdn-v2.laodong.vn/Storage/NewsPortal/2020/2/21/785984/D.jpg";
+//
+//        // Use Glide to load the image from the URL into the ImageView
+//        Glide.with(this).load(imageUrl).into(imageView);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
