@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_add_media"
+        android:title="Add Image/Video" />
+    <item
+        android:id="@+id/menu_add_folder"
+        android:title="Add Folder" />
+
+</menu>
