@@ -171,6 +171,7 @@
                             android:layout_weight="1" />
 
                         <ImageView
+                            android:id="@+id/folder1_options_menu"
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:layout_gravity="center_vertical"

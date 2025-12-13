@@ -5,14 +5,17 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import android.view.MenuItem;
 
 
 import com.bumptech.glide.Glide;
@@ -85,6 +88,43 @@ public class HomePage extends AppCompatActivity {
 //
 //        // Use Glide to load the image from the URL into the ImageView
 //        Glide.with(this).load(imageUrl).into(imageView);
+
+        // Tìm ImageView của bạn bằng ID (ví dụ cho folder đầu tiên)
+// Hãy chắc chắn rằng bạn đã đặt ID này trong file XML
+        ImageView folderOptionsMenu = findViewById(R.id.folder1_options_menu);
+
+        folderOptionsMenu.setOnClickListener(new View.OnClickListener() {
+            @Override    public void onClick(View view) {
+                // Tạo một đối tượng PopupMenu
+                PopupMenu popup = new PopupMenu(HomePage.this, view);
+                // "Thổi phồng" (inflate) file menu của bạn vào PopupMenu
+                popup.getMenuInflater().inflate(R.menu.folder_option_menu, popup.getMenu());
+
+                // Đặt một listener để xử lý khi một mục trong menu được chọn
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    public boolean onMenuItemClick(MenuItem item) {
+                        int itemId = item.getItemId();
+                        if (itemId == R.id.menu_edit) {
+                            // Xử lý khi nhấn "Edit"
+                            Toast.makeText(HomePage.this, "Edit clicked", Toast.LENGTH_SHORT).show();
+                            return true;
+                        } else if (itemId == R.id.menu_delete) {
+                            // Xử lý khi nhấn "Delete"
+                            Toast.makeText(HomePage.this, "Delete clicked", Toast.LENGTH_SHORT).show();
+                            return true;
+                        } else if (itemId == R.id.menu_share) {
+                            // Xử lý khi nhấn "Share"
+                            Toast.makeText(HomePage.this, "Share clicked", Toast.LENGTH_SHORT).show();
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+
+                // Hiển thị menu
+                popup.show();
+            }
+        });
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
