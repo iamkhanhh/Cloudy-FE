@@ -139,16 +139,16 @@ public class change_password extends AppCompatActivity {
 
         // Gọi API
         ApiClient.getApiService(this).changePassword(request)
-                .enqueue(new Callback<ApiResponse>() {
+                .enqueue(new Callback<ApiResponse<Void>>() {
                     @Override
-                    public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
+                    public void onResponse(@NonNull Call<ApiResponse<Void>> call, @NonNull Response<ApiResponse<Void>> response) {
                         setInputsEnabled(true);
 
                         if (response.isSuccessful() && response.body() != null) {
-                            ApiResponse apiResponse = response.body();
+                            ApiResponse<Void> apiResponse = response.body();
 
                             Toast.makeText(change_password.this,
-                                    apiResponse.getMessage() != null ? apiResponse.getMessage() : "Đổi mật khẩu thành công!",
+                                    apiResponse.getMessageOrDefault("Đổi mật khẩu thành công!"),
                                     Toast.LENGTH_SHORT).show();
 
                             // Clear inputs
@@ -183,7 +183,7 @@ public class change_password extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable t) {
+                    public void onFailure(@NonNull Call<ApiResponse<Void>> call, @NonNull Throwable t) {
                         setInputsEnabled(true);
 
                         String errorMsg = "Lỗi kết nối: " + t.getMessage();

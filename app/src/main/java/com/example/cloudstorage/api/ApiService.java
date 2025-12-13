@@ -4,7 +4,11 @@ import com.example.cloudstorage.models.ApiResponse;
 import com.example.cloudstorage.models.ChangePasswordRequest;
 import com.example.cloudstorage.models.LoginRequest;
 import com.example.cloudstorage.models.LoginResponse;
+import com.example.cloudstorage.models.RegisterRequest;
+import com.example.cloudstorage.models.RegisterResponse;
+import com.example.cloudstorage.models.ReportRequest;
 import com.example.cloudstorage.models.ResendOtpRequest;
+import com.example.cloudstorage.models.StorageData;
 import com.example.cloudstorage.models.User;
 import com.example.cloudstorage.models.VerifyAccountRequest;
 
@@ -32,25 +36,41 @@ public interface ApiService {
     Call<LoginResponse> login(@Body LoginRequest loginRequest);
 
     /**
+     * POST /auth/register
+     * Đăng ký tài khoản mới
+     *
+     * Backend response: { "status": "success", "message": "...", "data": { "id": x, "email": "..." } }
+     *
+     * @param registerRequest chứa email, password, first_name, last_name
+     * @return ApiResponse wrapping RegisterResponse (id and email)
+     */
+    @POST("auth/register")
+    Call<ApiResponse<RegisterResponse>> register(@Body RegisterRequest registerRequest);
+
+    /**
      * GET /auth/me
      * Lấy thông tin user hiện tại
      * Authorization header sẽ tự động được thêm bởi AuthInterceptor
      *
-     * @return User object
+     * Backend response: { "status": "success", "data": { ...user object... } }
+     *
+     * @return ApiResponse wrapping User object
      */
     @GET("auth/me")
-    Call<User> getProfile();
+    Call<ApiResponse<User>> getProfile();
 
     /**
      * POST /auth/activate-account/:id
      * Kích hoạt tài khoản với mã OTP
      *
+     * Backend response: { "status": "success", "message": "..." }
+     *
      * @param id userId nhận từ email hoặc sau khi register
      * @param request chứa code (OTP)
-     * @return ApiResponse với status và message
+     * @return ApiResponse with no data (Void)
      */
     @POST("auth/activate-account/{id}")
-    Call<ApiResponse> activateAccount(
+    Call<ApiResponse<Void>> activateAccount(
             @Path("id") int id,
             @Body VerifyAccountRequest request
     );
@@ -59,22 +79,52 @@ public interface ApiService {
      * POST /auth/resend-otp
      * Gửi lại mã OTP
      *
+     * Backend response: { "status": "success", "message": "...", "data": { "id": x, "email": "..." } }
+     * Note: Data contains id and email but we don't currently use it
+     *
      * @param request chứa email
-     * @return ApiResponse với status và message
+     * @return ApiResponse with no data (Void) - data field not used
      */
     @POST("auth/resend-otp")
-    Call<ApiResponse> resendOtp(@Body ResendOtpRequest request);
+    Call<ApiResponse<Void>> resendOtp(@Body ResendOtpRequest request);
 
     /**
      * PUT /auth/change-password
      * Đổi mật khẩu
      * Authorization header sẽ tự động được thêm bởi AuthInterceptor
      *
+     * Backend response: { "status": "success", "message": "..." }
+     *
      * @param request chứa currentPassword và newPassword
-     * @return ApiResponse với status và message
+     * @return ApiResponse with no data (Void)
      */
     @PUT("auth/change-password")
-    Call<ApiResponse> changePassword(@Body ChangePasswordRequest request);
+    Call<ApiResponse<Void>> changePassword(@Body ChangePasswordRequest request);
+
+    /**
+     * POST /users/report
+     * Gửi báo cáo help/bug report
+     * Authorization header sẽ tự động được thêm bởi AuthInterceptor
+     *
+     * Backend response: { "status": "success", "message": "..." }
+     *
+     * @param request chứa title và details
+     * @return ApiResponse with no data (Void)
+     */
+    @POST("users/report")
+    Call<ApiResponse<Void>> submitReport(@Body ReportRequest request);
+
+    /**
+     * GET /users/storage
+     * Lấy thông tin dung lượng lưu trữ
+     * Authorization header sẽ tự động được thêm bởi AuthInterceptor
+     *
+     * Backend response: { "status": "success", "data": { "IMAGE": x, "VIDEO": y, "TOTAL": z } }
+     *
+     * @return ApiResponse wrapping StorageData (IMAGE, VIDEO, TOTAL in GB)
+     */
+    @GET("users/storage")
+    Call<ApiResponse<StorageData>> getStorage();
 
     /**
      * POST /logout (nếu backend có endpoint này)

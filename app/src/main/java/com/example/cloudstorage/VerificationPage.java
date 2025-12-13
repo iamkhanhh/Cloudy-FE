@@ -135,17 +135,17 @@ public class VerificationPage extends AppCompatActivity {
 
         // Gọi API
         ApiClient.getApiService(this).activateAccount(userId, request)
-                .enqueue(new Callback<ApiResponse>() {
+                .enqueue(new Callback<ApiResponse<Void>>() {
                     @Override
-                    public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
+                    public void onResponse(@NonNull Call<ApiResponse<Void>> call, @NonNull Response<ApiResponse<Void>> response) {
                         showVerifyLoading(false);
 
                         if (response.isSuccessful() && response.body() != null) {
-                            ApiResponse apiResponse = response.body();
+                            ApiResponse<Void> apiResponse = response.body();
 
                             // Xác thực thành công
                             Toast.makeText(VerificationPage.this,
-                                    apiResponse.getMessage() != null ? apiResponse.getMessage() : "Xác thực thành công!",
+                                    apiResponse.getMessageOrDefault("Xác thực thành công!"),
                                     Toast.LENGTH_SHORT).show();
 
                             // Chuyển về màn hình login
@@ -169,7 +169,7 @@ public class VerificationPage extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable t) {
+                    public void onFailure(@NonNull Call<ApiResponse<Void>> call, @NonNull Throwable t) {
                         showVerifyLoading(false);
 
                         String errorMsg = "Lỗi kết nối: " + t.getMessage();
@@ -193,16 +193,16 @@ public class VerificationPage extends AppCompatActivity {
 
         // Gọi API
         ApiClient.getApiService(this).resendOtp(request)
-                .enqueue(new Callback<ApiResponse>() {
+                .enqueue(new Callback<ApiResponse<Void>>() {
                     @Override
-                    public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
+                    public void onResponse(@NonNull Call<ApiResponse<Void>> call, @NonNull Response<ApiResponse<Void>> response) {
                         showResendLoading(false);
 
                         if (response.isSuccessful() && response.body() != null) {
-                            ApiResponse apiResponse = response.body();
+                            ApiResponse<Void> apiResponse = response.body();
 
                             Toast.makeText(VerificationPage.this,
-                                    apiResponse.getMessage() != null ? apiResponse.getMessage() : "Mã OTP mới đã được gửi!",
+                                    apiResponse.getMessageOrDefault("Mã OTP mới đã được gửi!"),
                                     Toast.LENGTH_SHORT).show();
 
                             // Reset timer
@@ -230,7 +230,7 @@ public class VerificationPage extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable t) {
+                    public void onFailure(@NonNull Call<ApiResponse<Void>> call, @NonNull Throwable t) {
                         showResendLoading(false);
 
                         String errorMsg = "Lỗi kết nối: " + t.getMessage();

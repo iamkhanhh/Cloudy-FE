@@ -116,18 +116,6 @@
         <include layout="@layout/storage_item_layout"
             android:id="@+id/item_videos"/>
 
-        <!-- Mục Documents -->
-        <include layout="@layout/storage_item_layout"
-            android:id="@+id/item_documents"/>
-
-        <!-- Mục Audio -->
-        <include layout="@layout/storage_item_layout"
-            android:id="@+id/item_audio"/>
-
-        <!-- Mục Others -->
-        <include layout="@layout/storage_item_layout"
-            android:id="@+id/item_others"/>
-
     </LinearLayout>
 
 

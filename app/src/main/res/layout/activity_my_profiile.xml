@@ -539,9 +539,10 @@
             android:gravity="center"
             android:orientation="vertical">
             <TextView
+                android:id="@+id/storage_used_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="15.7 GB"
+                android:text="0 GB"
                 android:fontFamily="@font/gilroy_bold"
                 android:textColor="#22215B"
                 android:textSize="18sp"/>
@@ -561,9 +562,10 @@
             android:gravity="center"
             android:orientation="vertical">
             <TextView
+                android:id="@+id/files_count_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="1,280"
+                android:text="0"
                 android:fontFamily="@font/gilroy_bold"
                 android:textColor="#22215B"
                 android:textSize="18sp"/>
@@ -583,9 +585,10 @@
             android:gravity="center"
             android:orientation="vertical">
             <TextView
+                android:id="@+id/folders_count_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="25"
+                android:text="0"
                 android:fontFamily="@font/gilroy_bold"
                 android:textColor="#22215B"
                 android:textSize="18sp"/>
