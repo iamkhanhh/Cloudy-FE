@@ -4,6 +4,7 @@ import com.example.cloudstorage.models.ApiResponse;
 import com.example.cloudstorage.models.ChangePasswordRequest;
 import com.example.cloudstorage.models.LoginRequest;
 import com.example.cloudstorage.models.LoginResponse;
+import com.example.cloudstorage.models.Media;
 import com.example.cloudstorage.models.RegisterRequest;
 import com.example.cloudstorage.models.RegisterResponse;
 import com.example.cloudstorage.models.ReportRequest;
@@ -125,6 +126,19 @@ public interface ApiService {
      */
     @GET("users/storage")
     Call<ApiResponse<StorageData>> getStorage();
+
+    /**
+     * GET /media/{id}
+     * Lấy thông tin chi tiết media (ảnh hoặc video) theo ID
+     * Authorization header sẽ tự động được thêm bởi AuthInterceptor
+     *
+     * Backend response: { "status": "success", "data": { ...media object... } }
+     *
+     * @param id Media ID
+     * @return ApiResponse wrapping Media object
+     */
+    @GET("media/{id}")
+    Call<ApiResponse<Media>> getMediaById(@Path("id") int id);
 
     /**
      * POST /logout (nếu backend có endpoint này)
