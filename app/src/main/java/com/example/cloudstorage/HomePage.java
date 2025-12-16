@@ -1,10 +1,16 @@
 package com.example.cloudstorage;
 
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.provider.MediaStore;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -12,6 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.graphics.Insets;
@@ -45,6 +53,41 @@ public class HomePage extends AppCompatActivity {
     private FlexboxLayout foldersListLayout;
     private List<FolderItem> folderItems;
 
+    private ImageView addFileButton;
+    private ImageView imagePreview; // To hold a reference to the ImageView in the dialog
+    private Uri selectedMediaUri; // To store the URI of the selected image
+
+    // Handles the result from the image picker
+    // Handles the result from the image picker
+    private final ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    selectedMediaUri = result.getData().getData();
+                    if (imagePreview != null && selectedMediaUri != null) {
+                        // Kiểm tra loại MIME của file được chọn
+                        String mimeType = getContentResolver().getType(selectedMediaUri);
+
+                        if (mimeType != null && mimeType.startsWith("video")) {
+                            // Nếu là video, hiển thị frame đầu tiên làm thumbnail
+                            // Glide có thể làm điều này một cách tự động
+                            Glide.with(this)
+                                    .load(selectedMediaUri)
+                                    .placeholder(R.drawable.ic_launcher_background) // Ảnh giữ chỗ
+                                    .error(R.drawable.ic_launcher_foreground) // Ảnh lỗi (thay bằng icon video)
+                                    .into(imagePreview);
+                        } else {
+                            // Nếu là ảnh (hoặc không xác định được), hiển thị như bình thường
+                            Glide.with(this)
+                                    .load(selectedMediaUri)
+                                    .placeholder(R.drawable.ic_launcher_background) // Ảnh giữ chỗ
+                                    .into(imagePreview);
+                        }
+                    }
+                }
+            });
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +101,7 @@ public class HomePage extends AppCompatActivity {
         TextView btn_nav_profile = findViewById(R.id.nav_profile_text);
         TextView nav_logout_text = findViewById(R.id.nav_logout_text);
         TextView nav_settings_text = findViewById(R.id.nav_settings_text);
+        addFileButton = findViewById(R.id.add_file_button);
 
         menuIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,6 +150,10 @@ public class HomePage extends AppCompatActivity {
 
         // Load albums and media from backend
         loadAlbumsAndMedia();
+
+        // Set the click listener
+        addFileButton.setOnClickListener(v -> showUploadDialog());
+
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -291,6 +339,67 @@ public class HomePage extends AppCompatActivity {
         });
 
         popup.show();
+    }
+
+    private void showUploadDialog() {
+        // Create the dialog
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_upload_media);
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setLayout(
+                    (int) (getResources().getDisplayMetrics().widthPixels * 0.90), // Chiều rộng 90% màn hình
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT // Chiều cao tự động
+            );
+        }
+
+        // Get references to views in the dialog
+        imagePreview = dialog.findViewById(R.id.image_preview);
+        Button selectImageButton = dialog.findViewById(R.id.button_select_image);
+        EditText captionEditText = dialog.findViewById(R.id.edit_text_caption);
+        Button cancelButton = dialog.findViewById(R.id.button_cancel);
+        Button uploadButton = dialog.findViewById(R.id.button_upload);
+
+        // Set click listener for the "Select Image" button
+        selectImageButton.setOnClickListener(v -> {
+            // Tạo một Intent để cho phép chọn cả ảnh và video
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("image/*, video/*"); // Chỉ định cả hai loại MIME
+
+            intent.setType("*/*");
+            String[] mimeTypes = {"image/*", "video/*"};
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+
+            // Mở trình chọn file
+            imagePickerLauncher.launch(intent);
+        });
+
+        // Set click listener for the "Cancel" button
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+
+        // Set click listener for the "Upload" button
+        uploadButton.setOnClickListener(v -> {
+            String caption = captionEditText.getText().toString().trim();
+            if (selectedMediaUri == null) {
+                Toast.makeText(this, "Please select an image first", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (caption.isEmpty()) {
+                Toast.makeText(this, "Please enter a caption", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // --- Your Upload Logic Goes Here ---
+            // You now have the 'selectedMediaUri' and 'caption'.
+            // You can use these to upload the file using Retrofit or another library.
+            Toast.makeText(this, "Uploading...", Toast.LENGTH_SHORT).show();
+            // For example: uploadFile(selectedMediaUri, caption);
+
+            dialog.dismiss();
+        });
+
+        // Show the dialog
+        dialog.show();
     }
 
     /**
