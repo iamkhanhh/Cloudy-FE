@@ -9,4 +9,7 @@
     <item
         android:id="@+id/menu_share"
         android:title="Share" />
+    <item
+        android:id="@+id/menu_email_share"
+        android:title="Send by email" />
 </menu>

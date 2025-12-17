@@ -148,6 +148,11 @@ public class HomePage extends AppCompatActivity {
                             return true;
                         } else if (itemId == R.id.menu_share) {
                             // --- GỌI DIALOG TẠI ĐÂY ---
+                            Toast.makeText(HomePage.this, "Share clicked", Toast.LENGTH_SHORT).show();
+                            return true;
+                        }
+                        else if (itemId == R.id.menu_email_share) {
+                            // --- GỌI DIALOG TẠI ĐÂY ---
                             showSendEmailDialog();
                             return true;
                         }
