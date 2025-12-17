@@ -1,15 +1,20 @@
 package com.example.cloudstorage;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,14 +30,30 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import android.view.MenuItem;
 
-
 import com.bumptech.glide.Glide;
+import com.example.cloudstorage.api.ApiClient;
+import com.example.cloudstorage.models.Album;
+import com.example.cloudstorage.models.ApiResponse;
+import com.example.cloudstorage.models.FolderItem;
+import com.example.cloudstorage.models.Media;
 import com.example.cloudstorage.utils.TokenManager;
+import com.google.android.flexbox.FlexboxLayout;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import com.google.android.material.textfield.TextInputEditText;
 
 
 public class HomePage extends AppCompatActivity {
+    private static final String TAG = "HomePage";
+
     private TokenManager tokenManager;
+    private FlexboxLayout foldersListLayout;
+    private List<FolderItem> folderItems;
 
     private ImageView addFileButton;
     private ImageView imagePreview; // To hold a reference to the ImageView in the dialog
@@ -76,10 +97,17 @@ public class HomePage extends AppCompatActivity {
         setContentView(R.layout.activity_home_page);
 
         tokenManager = new TokenManager(this);
+
         DrawerLayout drawerLayout =  findViewById(R.id.main);
         ImageView menuIcon = findViewById(R.id.menu_icon);
         TextView btn_nav_profile = findViewById(R.id.nav_profile_text);
         TextView nav_logout_text = findViewById(R.id.nav_logout_text);
+        TextView nav_settings_text = findViewById(R.id.nav_settings_text);
+        TextView nav_share_text = findViewById(R.id.nav_shared_text);
+        TextView nav_storage_text = findViewById(R.id.nav_storage_text);
+        TextView nav_help_text = findViewById(R.id.nav_help_text);
+
+        addFileButton = findViewById(R.id.add_file_button);
 
         menuIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,6 +135,30 @@ public class HomePage extends AppCompatActivity {
             }
         });
 
+        nav_share_text.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent it = new Intent(HomePage.this, SharedWithMe.class);
+                startActivity(it);
+            }
+        });
+
+        nav_storage_text.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent it = new Intent(HomePage.this, storage_details.class);
+                startActivity(it);
+            }
+        });
+
+        nav_help_text.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent it = new Intent(HomePage.this, help_report.class);
+                startActivity(it);
+            }
+        });
+
         nav_logout_text.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -114,60 +166,20 @@ public class HomePage extends AppCompatActivity {
             }
         });
 
-        // Find the ImageView by its ID
-//        ImageView imageView = findViewById(R.id.folder_image_1);
-//
-//        // Define the image URL
-//        String imageUrl = "https://media-cdn-v2.laodong.vn/Storage/NewsPortal/2020/2/21/785984/D.jpg";
-//
-//        // Use Glide to load the image from the URL into the ImageView
-//        Glide.with(this).load(imageUrl).into(imageView);
-
-        // Tìm ImageView của bạn bằng ID (ví dụ cho folder đầu tiên)
-// Hãy chắc chắn rằng bạn đã đặt ID này trong file XML
-        ImageView folderOptionsMenu = findViewById(R.id.folder1_options_menu);
-
-        folderOptionsMenu.setOnClickListener(new View.OnClickListener() {
-            @Override    public void onClick(View view) {
-                // Tạo một đối tượng PopupMenu
-                PopupMenu popup = new PopupMenu(HomePage.this, view);
-                // "Thổi phồng" (inflate) file menu của bạn vào PopupMenu
-                popup.getMenuInflater().inflate(R.menu.folder_option_menu, popup.getMenu());
-
-                // Đặt một listener để xử lý khi một mục trong menu được chọn
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    public boolean onMenuItemClick(MenuItem item) {
-                        int itemId = item.getItemId();
-                        if (itemId == R.id.menu_edit) {
-                            // Handle "Edit" click
-                            Toast.makeText(HomePage.this, "Edit clicked", Toast.LENGTH_SHORT).show();
-                            return true;
-                        } else if (itemId == R.id.menu_delete) {
-                            // Handle "Delete" click
-                            Toast.makeText(HomePage.this, "Delete clicked", Toast.LENGTH_SHORT).show();
-                            return true;
-                        } else if (itemId == R.id.menu_share) {
-                            // --- GỌI DIALOG TẠI ĐÂY ---
-                            Toast.makeText(HomePage.this, "Share clicked", Toast.LENGTH_SHORT).show();
-                            return true;
-                        }
-                        else if (itemId == R.id.menu_email_share) {
-                            // --- GỌI DIALOG TẠI ĐÂY ---
-                            showSendEmailDialog();
-                            return true;
-                        }
-                        return false;
-                    }
-
-                });
-
-                // Hiển thị menu
-                popup.show();
+        nav_settings_text.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent it = new Intent(HomePage.this, change_password.class);
+                startActivity(it);
             }
         });
 
-        // Find the plus button
-        addFileButton = findViewById(R.id.add_file_button);
+        // Initialize folders list
+        foldersListLayout = findViewById(R.id.folderslist);
+        folderItems = new ArrayList<>();
+
+        // Load albums and media from backend
+        loadAlbumsAndMedia();
 
         // Set the click listener
         addFileButton.setOnClickListener(v -> showUploadDialog());
@@ -181,8 +193,187 @@ public class HomePage extends AppCompatActivity {
     }
 
     /**
-     * Upload dialog
+     * Load albums and media from backend
      */
+    private void loadAlbumsAndMedia() {
+        // Clear existing static items from layout
+        foldersListLayout.removeAllViews();
+        folderItems.clear();
+
+        // Load both albums and media in parallel
+        loadAlbums();
+        loadMedia();
+    }
+
+    /**
+     * Load albums from backend
+     */
+    private void loadAlbums() {
+        ApiClient.getApiService(this).getAllAlbums().enqueue(new Callback<ApiResponse<List<Album>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<Album>>> call, Response<ApiResponse<List<Album>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<List<Album>> apiResponse = response.body();
+
+                    if (apiResponse.isSuccess() && apiResponse.hasData()) {
+                        List<Album> albums = apiResponse.getData();
+                        Log.d(TAG, "Loaded " + albums.size() + " albums");
+
+                        // Add albums to folder items
+                        for (Album album : albums) {
+                            folderItems.add(new FolderItem(album));
+                        }
+
+                        // Update UI
+                        displayFolderItems();
+                    } else {
+                        Log.e(TAG, "Failed to load albums: " + apiResponse.getMessageOrDefault("Unknown error"));
+                    }
+                } else {
+                    Log.e(TAG, "Failed to load albums: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<Album>>> call, Throwable t) {
+                Log.e(TAG, "Error loading albums", t);
+                Toast.makeText(HomePage.this, "Error loading albums: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    /**
+     * Load media from backend
+     */
+    private void loadMedia() {
+        ApiClient.getApiService(this).getAllMedia().enqueue(new Callback<ApiResponse<List<Media>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<Media>>> call, Response<ApiResponse<List<Media>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<List<Media>> apiResponse = response.body();
+
+                    if (apiResponse.isSuccess() && apiResponse.hasData()) {
+                        List<Media> mediaList = apiResponse.getData();
+                        Log.d(TAG, "Loaded " + mediaList.size() + " media items");
+
+                        // Add media to folder items
+                        for (Media media : mediaList) {
+                            folderItems.add(new FolderItem(media));
+                        }
+
+                        // Update UI
+                        displayFolderItems();
+                    } else {
+                        Log.e(TAG, "Failed to load media: " + apiResponse.getMessageOrDefault("Unknown error"));
+                    }
+                } else {
+                    Log.e(TAG, "Failed to load media: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<Media>>> call, Throwable t) {
+                Log.e(TAG, "Error loading media", t);
+                Toast.makeText(HomePage.this, "Error loading media: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    /**
+     * Display folder items (albums and media) in FlexboxLayout
+     */
+    private void displayFolderItems() {
+        // Clear existing views
+        foldersListLayout.removeAllViews();
+
+        // Create view for each folder item
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);;
+
+        for (FolderItem item : folderItems) {
+            View itemView = inflater.inflate(R.layout.item_folder, foldersListLayout, false);
+
+            ImageView ivFolderIcon = itemView.findViewById(R.id.iv_folder_icon);
+            ImageView ivFolderOptions = itemView.findViewById(R.id.iv_folder_options);
+            TextView tvFolderName = itemView.findViewById(R.id.tv_folder_name);
+            TextView tvFolderDate = itemView.findViewById(R.id.tv_folder_date);
+
+            // Set folder name and date
+            tvFolderName.setText(item.getName());
+            tvFolderDate.setText(item.getDate());
+
+            // Set icon based on type
+            if (item.isAlbum()) {
+                // Album - show folder icon
+                ivFolderIcon.setImageResource(R.drawable.folder);
+            } else if (item.isMedia()) {
+                // Media - show thumbnail if image, or folder icon if video
+                Media media = item.getMedia();
+                if (media.isImage()) {
+                    // Load image thumbnail using Glide
+                    Glide.with(this)
+                            .load(media.getFilePath())
+                            .placeholder(R.drawable.folder)
+                            .error(R.drawable.folder)
+                            .centerCrop()
+                            .into(ivFolderIcon);
+                } else {
+                    // Video - use folder icon for now
+                    ivFolderIcon.setImageResource(R.drawable.folder);
+                }
+            }
+
+            // Set click listener for the item
+            itemView.setOnClickListener(v -> {
+                if (item.isMedia()) {
+                    // Navigate to MediaDetail activity
+                    Intent intent = new Intent(HomePage.this, MediaDetail.class);
+                    intent.putExtra("media_id", item.getId());
+                    startActivity(intent);
+                } else if (item.isAlbum()) {
+                    Intent intent = new Intent(HomePage.this, FolderDetails.class);
+                    intent.putExtra("album_id", item.getId());
+                    startActivity(intent);
+                }
+            });
+
+            // Set click listener for options menu
+            ivFolderOptions.setOnClickListener(v -> {
+                showOptionsMenu(v, item);
+            });
+
+            // Add view to layout
+            foldersListLayout.addView(itemView);
+        }
+    }
+
+    /**
+     * Show options menu for folder item
+     */
+    private void showOptionsMenu(View view, FolderItem item) {
+        PopupMenu popup = new PopupMenu(this, view);
+        popup.getMenuInflater().inflate(R.menu.folder_option_menu, popup.getMenu());
+
+        popup.setOnMenuItemClickListener(menuItem -> {
+            int itemId = menuItem.getItemId();
+            if (itemId == R.id.menu_edit) {
+                Toast.makeText(this, "Edit: " + item.getName(), Toast.LENGTH_SHORT).show();
+                return true;
+            } else if (itemId == R.id.menu_delete) {
+                Toast.makeText(this, "Delete: " + item.getName(), Toast.LENGTH_SHORT).show();
+                return true;
+            } else if (itemId == R.id.menu_share) {
+                Toast.makeText(this, "Share: " + item.getName(), Toast.LENGTH_SHORT).show();
+                return true;
+            } else if (itemId == R.id.menu_email_share) {
+                showSendEmailDialog();
+                return true;
+            }
+            return false;
+        });
+
+        popup.show();
+    }
+
     private void showUploadDialog() {
         // Create the dialog
         final Dialog dialog = new Dialog(this);
@@ -243,8 +434,6 @@ public class HomePage extends AppCompatActivity {
         // Show the dialog
         dialog.show();
     }
-
-
 
     private void showSendEmailDialog() {
         final Dialog emailDialog = new Dialog(this);

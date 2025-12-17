@@ -1,14 +1,29 @@
 package com.example.cloudstorage.models;
 
+import com.google.gson.annotations.SerializedName;
+
 public class User {
     private String id;
     private String email;
-    private String name;
+    @SerializedName("first_name")
+    private String firstName;
+    @SerializedName("last_name")
+    private String lastName;
     private String bio;
     private String profileImage;
     private long usedSpace;
     private int fileCount;
     private int folderCount;
+
+    // Các trường mới từ API /auth/me
+    @SerializedName("media_count")
+    private int mediaCount;
+
+    @SerializedName("albums_count")
+    private int albumsCount;
+
+    @SerializedName("total")
+    private double total; // Dung lượng tổng (GB)
 
     public String getId() {
         return id;
@@ -27,11 +42,7 @@ public class User {
     }
 
     public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+        return firstName + " " + lastName;
     }
 
     public String getBio() {
@@ -72,5 +83,29 @@ public class User {
 
     public void setFolderCount(int folderCount) {
         this.folderCount = folderCount;
+    }
+
+    public int getMediaCount() {
+        return mediaCount;
+    }
+
+    public void setMediaCount(int mediaCount) {
+        this.mediaCount = mediaCount;
+    }
+
+    public int getAlbumsCount() {
+        return albumsCount;
+    }
+
+    public void setAlbumsCount(int albumsCount) {
+        this.albumsCount = albumsCount;
+    }
+
+    public double getTotal() {
+        return total;
+    }
+
+    public void setTotal(double total) {
+        this.total = total;
     }
 }

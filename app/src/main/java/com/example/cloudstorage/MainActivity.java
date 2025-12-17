@@ -20,6 +20,8 @@ import com.example.cloudstorage.models.LoginResponse;
 import com.example.cloudstorage.utils.TokenManager;
 import com.google.android.material.textfield.TextInputEditText;
 
+import org.json.JSONObject;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -136,6 +138,9 @@ public class MainActivity extends AppCompatActivity {
                     // Parse error message từ backend nếu có
                     try {
                         if (response.errorBody() != null) {
+                            String errorJson = response.errorBody().string();
+                            JSONObject obj = new JSONObject(errorJson);
+                            errorMsg = obj.optString("message", "Đăng nhập thất bại. Vui lòng kiểm tra lại email và password.");
                             errorMsg = response.errorBody().string();
                         }
                     } catch (Exception e) {

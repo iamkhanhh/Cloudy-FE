@@ -25,6 +25,9 @@
             android:name=".SharedWithMe"
             android:exported="false" />
         <activity
+            android:name=".VerificationPage"
+            android:exported="false" />
+        <activity
             android:name=".storage_details"
             android:exported="false" />
         <activity
@@ -52,5 +55,4 @@
             </intent-filter>
         </activity>
     </application>
-
 </manifest>

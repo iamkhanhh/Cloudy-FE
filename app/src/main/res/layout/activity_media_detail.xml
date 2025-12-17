@@ -39,7 +39,7 @@
                 />
 
             <TextView
-                android:id="@+id/textView5"
+                android:id="@+id/tv_media_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="50dp"
@@ -52,8 +52,9 @@
 
         </LinearLayout>
 
-<!--        IMAGE VIEW Ở GIỮA, TO, -->
-        <ImageView
+<!--        MEDIA CONTAINER - Chứa ImageView hoặc VideoView -->
+        <FrameLayout
+            android:id="@+id/media_container"
             android:layout_width="0dp"
             app:layout_constraintWidth_percent="0.8"
             android:layout_height="0dp"
@@ -61,10 +62,33 @@
             app:layout_constraintTop_toBottomOf="@id/header_layout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            android:src="@drawable/tomhum">
+            app:layout_constraintHorizontal_bias="0.5">
 
-        </ImageView>
+            <!--        IMAGE VIEW cho ảnh -->
+            <ImageView
+                android:id="@+id/iv_media"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                android:src="@drawable/tomhum"/>
+
+            <!--        VIDEO VIEW cho video -->
+            <VideoView
+                android:id="@+id/vv_media"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"/>
+
+            <!--        Progress bar khi loading -->
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="visible"/>
+
+        </FrameLayout>
 <!--        TEXT VIEW HIỂN THỊ CAPTION, FILE SIZE, CREATED AT-->
         <LinearLayout
             android:layout_width="match_parent"
