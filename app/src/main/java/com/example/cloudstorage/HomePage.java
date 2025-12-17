@@ -44,6 +44,7 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import com.google.android.material.textfield.TextInputEditText;
 
 
 public class HomePage extends AppCompatActivity {
@@ -334,6 +335,9 @@ public class HomePage extends AppCompatActivity {
             } else if (itemId == R.id.menu_share) {
                 Toast.makeText(this, "Share: " + item.getName(), Toast.LENGTH_SHORT).show();
                 return true;
+            } else if (itemId == R.id.menu_email_share) {
+                showSendEmailDialog();
+                return true;
             }
             return false;
         });
@@ -401,6 +405,60 @@ public class HomePage extends AppCompatActivity {
         // Show the dialog
         dialog.show();
     }
+
+    private void showSendEmailDialog() {
+        final Dialog emailDialog = new Dialog(this);
+        emailDialog.setContentView(R.layout.dialog_send_email);
+
+        // Set chiều rộng cho dialog
+        if (emailDialog.getWindow() != null) {
+            emailDialog.getWindow().setLayout(
+                    (int) (getResources().getDisplayMetrics().widthPixels * 0.95), // Rộng 95% màn hình
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+        }
+
+        // Lấy view từ layout của dialog
+        TextInputEditText toEmailEditText = emailDialog.findViewById(R.id.edit_text_to_email);
+        TextInputEditText subjectEditText = emailDialog.findViewById(R.id.edit_text_subject);
+        TextInputEditText bodyEditText = emailDialog.findViewById(R.id.edit_text_body);
+        Button cancelButton = emailDialog.findViewById(R.id.button_cancel_email);
+        Button sendButton = emailDialog.findViewById(R.id.button_send_email);
+
+        // Gán giá trị mặc định (nếu cần)
+        subjectEditText.setText("Check out this media");
+        bodyEditText.setText("Hi, I wanted to share this media with you.");
+
+        // Xử lý sự kiện cho nút Cancel
+        cancelButton.setOnClickListener(v -> emailDialog.dismiss());
+
+        // Xử lý sự kiện cho nút Send
+        sendButton.setOnClickListener(v -> {
+            String toEmail = toEmailEditText.getText().toString().trim();
+            String subject = subjectEditText.getText().toString().trim();
+            String body = bodyEditText.getText().toString().trim();
+
+            if (toEmail.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(toEmail).matches()) {
+                toEmailEditText.setError("Please enter a valid email");
+                return;
+            }
+            if (subject.isEmpty()) {
+                subjectEditText.setError("Subject cannot be empty");
+                return;
+            }
+
+            // --- GỌI API GỬI MAIL CỦA BẠN TẠI ĐÂY ---
+            // Ví dụ:
+            // YourApiClass.sendEmail(toEmail, subject, body, new Callback<...>() { ... });
+
+            Toast.makeText(HomePage.this, "Sending email to " + toEmail, Toast.LENGTH_SHORT).show();
+
+            emailDialog.dismiss(); // Đóng dialog sau khi gửi
+        });
+
+        emailDialog.show();
+    }
+
 
     /**
      * Xử lý logout
