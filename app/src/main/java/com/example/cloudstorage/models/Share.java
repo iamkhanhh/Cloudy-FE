@@ -103,6 +103,7 @@ public class Share {
         public String getFilePath() { return filePath; }
         public Long getSize() { return size; }
         public String getCaption() { return caption; }
+        public String getDescription() { return description; }
 
         public boolean isImage() {
             return "IMAGE".equalsIgnoreCase(type);
@@ -198,7 +199,7 @@ public class Share {
             album.setName(content.getName());
             album.setDescription(content.getDescription());
             album.setCreatedAt(content.getCreatedAt());
-            album.setCoverMediaId(content.getCoverMediaId());
+//            album.setCoverMediaId(content.getCoverMediaId());
             return new FolderItem(album);
         }
         return null;

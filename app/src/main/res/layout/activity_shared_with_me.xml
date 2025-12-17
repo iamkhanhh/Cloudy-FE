@@ -132,8 +132,6 @@
 
                 <!-- Content will be dynamically loaded from backend -->
 
-                </LinearLayout>
-
 
             </com.google.android.flexbox.FlexboxLayout>
 

@@ -15,9 +15,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.cloudstorage.api.ApiClient;
-import com.example.cloudstorage.auth.TokenManager;
 import com.example.cloudstorage.models.ApiResponse;
 import com.example.cloudstorage.models.StorageData;
+import com.example.cloudstorage.utils.TokenManager;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -105,7 +105,7 @@ public class storage_details extends AppCompatActivity {
 
         // Set icons (assuming you have these drawables)
         imageIcon.setImageResource(R.drawable.ic_images);
-        videoIcon.setImageResource(R.drawable.ic_videos);
+        videoIcon.setImageResource(R.drawable.ic_video);
 
         // Hide file count initially (backend doesn't provide this data)
         imageFileCount.setVisibility(View.GONE);

@@ -1,6 +1,7 @@
 package com.example.cloudstorage;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -102,6 +103,10 @@ public class HomePage extends AppCompatActivity {
         TextView btn_nav_profile = findViewById(R.id.nav_profile_text);
         TextView nav_logout_text = findViewById(R.id.nav_logout_text);
         TextView nav_settings_text = findViewById(R.id.nav_settings_text);
+        TextView nav_share_text = findViewById(R.id.nav_shared_text);
+        TextView nav_storage_text = findViewById(R.id.nav_storage_text);
+        TextView nav_help_text = findViewById(R.id.nav_help_text);
+
         addFileButton = findViewById(R.id.add_file_button);
 
         menuIcon.setOnClickListener(new View.OnClickListener() {
@@ -126,6 +131,30 @@ public class HomePage extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent it = new Intent(HomePage.this, my_profiile.class);
+                startActivity(it);
+            }
+        });
+
+        nav_share_text.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent it = new Intent(HomePage.this, SharedWithMe.class);
+                startActivity(it);
+            }
+        });
+
+        nav_storage_text.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent it = new Intent(HomePage.this, storage_details.class);
+                startActivity(it);
+            }
+        });
+
+        nav_help_text.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent it = new Intent(HomePage.this, help_report.class);
                 startActivity(it);
             }
         });
