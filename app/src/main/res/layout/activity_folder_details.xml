@@ -77,10 +77,12 @@
 
                 >
                 <ImageView
+                    android:id="@+id/btn_add_media"
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:layout_marginEnd="20dp"
                     android:src="@drawable/ic_plus"
+                    android:contentDescription="Add media to album"
                     />
 
             </LinearLayout>

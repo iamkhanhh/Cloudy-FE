@@ -1,7 +1,10 @@
 package com.example.cloudstorage;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +13,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.graphics.Insets;
@@ -22,12 +28,21 @@ import com.bumptech.glide.Glide;
 import com.example.cloudstorage.api.ApiClient;
 import com.example.cloudstorage.models.Album;
 import com.example.cloudstorage.models.ApiResponse;
+import com.example.cloudstorage.models.CreateMediaRequest;
 import com.example.cloudstorage.models.Media;
+import com.example.cloudstorage.models.PresignedUrl;
+import com.example.cloudstorage.models.PresignedUrlRequest;
 import com.google.android.flexbox.FlexboxLayout;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -42,6 +57,35 @@ public class FolderDetails extends AppCompatActivity {
     private TextView tvAlbumName;
     private TextView tvAlbumDescription;
     private DrawerLayout drawerLayout;
+    private Uri selectedMediaUri; 
+
+    private final ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
+        new ActivityResultContracts.StartActivityForResult(),
+        result -> {
+            if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                selectedMediaUri = result.getData().getData();
+                if (imagePreview != null && selectedMediaUri != null) {
+                    // Kiểm tra loại MIME của file được chọn
+                    String mimeType = getContentResolver().getType(selectedMediaUri);
+
+                    if (mimeType != null && mimeType.startsWith("video")) {
+                        // Nếu là video, hiển thị frame đầu tiên làm thumbnail
+                        // Glide có thể làm điều này một cách tự động
+                        Glide.with(this)
+                                .load(selectedMediaUri)
+                                .placeholder(R.drawable.ic_launcher_background) // Ảnh giữ chỗ
+                                .error(R.drawable.ic_launcher_foreground) // Ảnh lỗi (thay bằng icon video)
+                                .into(imagePreview);
+                    } else {
+                        // Nếu là ảnh (hoặc không xác định được), hiển thị như bình thường
+                        Glide.with(this)
+                                .load(selectedMediaUri)
+                                .placeholder(R.drawable.ic_launcher_background) // Ảnh giữ chỗ
+                                .into(imagePreview);
+                    }
+                }
+            }
+        });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +111,10 @@ public class FolderDetails extends AppCompatActivity {
         tvAlbumDescription = findViewById(R.id.tv_album_description);
         foldersListLayout = findViewById(R.id.folderslist);
         mediaList = new ArrayList<>();
+
+        // Setup upload button
+        ImageView btnAddMedia = findViewById(R.id.btn_add_media);
+        btnAddMedia.setOnClickListener(v -> showUploadDialog());
 
         // Load album details and media
         loadAlbumDetails();
@@ -226,15 +274,388 @@ public class FolderDetails extends AppCompatActivity {
                 Toast.makeText(this, "Edit: " + media.getFilename(), Toast.LENGTH_SHORT).show();
                 return true;
             } else if (itemId == R.id.menu_delete) {
-                Toast.makeText(this, "Delete: " + media.getFilename(), Toast.LENGTH_SHORT).show();
+                deleteMediaItem(item.getId());
                 return true;
             } else if (itemId == R.id.menu_share) {
-                Toast.makeText(this, "Share: " + media.getFilename(), Toast.LENGTH_SHORT).show();
+                shareItem(item);
                 return true;
             }
             return false;
         });
 
         popup.show();
+    }
+
+    /**
+     * Delete media item by ID
+     */
+    private void deleteMediaItem(int mediaId) {
+        ApiClient.getApiService(this).deleteMedia(mediaId).enqueue(new Callback<ApiResponse<Void>>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponse<Void>> call, @NonNull Response<ApiResponse<Void>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<Void> apiResponse = response.body();
+
+                    if (apiResponse.isSuccess()) {
+                        Toast.makeText(HomePage.this,
+                                apiResponse.getMessageOrDefault("Media deleted successfully!"),
+                                Toast.LENGTH_SHORT).show();
+
+                        // Reload data
+                        loadAlbumsAndMedia();
+                    } else {
+                        Log.e(TAG, "Failed to delete media: " + apiResponse.getMessageOrDefault("Unknown error"));
+                        Toast.makeText(HomePage.this, "Failed to delete media", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Log.e(TAG, "Failed to delete media: " + response.code());
+                    Toast.makeText(HomePage.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ApiResponse<Void>> call, @NonNull Throwable t) {
+                Log.e(TAG, "Error deleting media", t);
+                Toast.makeText(HomePage.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void shareItem(Media item) {
+        // Create dialog to input receiver email
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_share_item);
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setLayout(
+                    (int) (getResources().getDisplayMetrics().widthPixels * 0.90),
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+        }
+
+        // Get references to views
+        TextView tvShareTitle = dialog.findViewById(R.id.tv_share_title);
+        EditText etReceiverEmail = dialog.findViewById(R.id.et_receiver_email);
+        Button btnCancel = dialog.findViewById(R.id.btn_cancel_share);
+        Button btnShare = dialog.findViewById(R.id.btn_share);
+
+        // Set title
+        String itemType = "Media";
+        tvShareTitle.setText("Share " + itemType + ": " + item.getName());
+
+        // Cancel button
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        // Share button
+        btnShare.setOnClickListener(v -> {
+            String receiverEmail = etReceiverEmail.getText().toString().trim();
+
+            if (receiverEmail.isEmpty()) {
+                etReceiverEmail.setError("Please enter receiver email");
+                return;
+            }
+
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(receiverEmail).matches()) {
+                etReceiverEmail.setError("Please enter a valid email");
+                return;
+            }
+
+            // Call API to share
+            shareWithUser(item, receiverEmail);
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+    /**
+     * Call API to share resource with user
+     */
+    private void shareWithUser(Media item, String receiverEmail) {
+        String resourceType = "MEDIA";
+        CreateShareRequest request = new CreateShareRequest(
+                resourceType,
+                item.getId(),
+                "VIEW",  // Default permission
+                receiverEmail
+        );
+
+        ApiClient.getApiService(this).shareResource(request).enqueue(new Callback<ApiResponse<Share>>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponse<Share>> call, @NonNull Response<ApiResponse<Share>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<Share> apiResponse = response.body();
+
+                    if (apiResponse.isSuccess()) {
+                        Toast.makeText(HomePage.this,
+                                apiResponse.getMessageOrDefault("Shared successfully!"),
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        Log.e(TAG, "Failed to share: " + apiResponse.getMessageOrDefault("Unknown error"));
+                        Toast.makeText(HomePage.this, "Failed to share", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Log.e(TAG, "Failed to share: " + response.code());
+                    Toast.makeText(HomePage.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ApiResponse<Share>> call, @NonNull Throwable t) {
+                Log.e(TAG, "Error sharing", t);
+                Toast.makeText(HomePage.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void showUploadDialog() {
+        // Create the dialog
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_upload_media);
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setLayout(
+                    (int) (getResources().getDisplayMetrics().widthPixels * 0.90), // Chiều rộng 90% màn hình
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT // Chiều cao tự động
+            );
+        }
+
+        // Get references to views in the dialog
+        imagePreview = dialog.findViewById(R.id.image_preview);
+        Button selectImageButton = dialog.findViewById(R.id.button_select_image);
+        EditText captionEditText = dialog.findViewById(R.id.edit_text_caption);
+        Button cancelButton = dialog.findViewById(R.id.button_cancel);
+        Button uploadButton = dialog.findViewById(R.id.button_upload);
+
+        // Set click listener for the "Select Image" button
+        selectImageButton.setOnClickListener(v -> {
+            // Tạo một Intent để cho phép chọn cả ảnh và video
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("image/*, video/*"); // Chỉ định cả hai loại MIME
+
+            intent.setType("*/*");
+            String[] mimeTypes = {"image/*", "video/*"};
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+
+            // Mở trình chọn file
+            imagePickerLauncher.launch(intent);
+        });
+
+        // Set click listener for the "Cancel" button
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+
+        // Set click listener for the "Upload" button
+        uploadButton.setOnClickListener(v -> {
+            String caption = captionEditText.getText().toString().trim();
+            if (selectedMediaUri == null) {
+                Toast.makeText(this, "Please select an image first", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (caption.isEmpty()) {
+                Toast.makeText(this, "Please enter a caption", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Start upload process
+            Toast.makeText(this, "Uploading...", Toast.LENGTH_SHORT).show();
+            uploadFile(selectedMediaUri, caption);
+            dialog.dismiss();
+        });
+
+        // Show the dialog
+        dialog.show();
+    }
+
+    /**
+     * Get file name from URI
+     */
+    private String getFileName(Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    if (nameIndex >= 0) {
+                        result = cursor.getString(nameIndex);
+                    }
+                }
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Get file size from URI
+     */
+    private long getFileSize(Uri uri) {
+        long size = 0;
+        try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                if (sizeIndex >= 0) {
+                    size = cursor.getLong(sizeIndex);
+                }
+            }
+        }
+        return size;
+    }
+
+    /**
+     * Step 1: Generate presigned URL
+     * Step 2: Upload to S3
+     * Step 3: Create media record
+     */
+    private void uploadFile(Uri fileUri, String caption) {
+        try {
+            // Get file information
+            String fileName = getFileName(fileUri);
+            String mimeType = getContentResolver().getType(fileUri);
+            long fileSize = getFileSize(fileUri);
+
+            Log.d(TAG, "Uploading file: " + fileName + ", type: " + mimeType + ", size: " + fileSize);
+
+            // Step 1: Generate presigned URL
+            PresignedUrlRequest request = new PresignedUrlRequest(fileName, albumId);
+
+            ApiClient.getApiService(this).generatePresignedUrl(request).enqueue(new Callback<ApiResponse<PresignedUrl>>() {
+                @Override
+                public void onResponse(@NonNull Call<ApiResponse<PresignedUrl>> call, @NonNull Response<ApiResponse<PresignedUrl>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        ApiResponse<PresignedUrl> apiResponse = response.body();
+
+                        if (apiResponse.isSuccess() && apiResponse.hasData()) {
+                            PresignedUrl presignedUrl = apiResponse.getData();
+                            Log.d(TAG, "Presigned URL generated: " + presignedUrl.getUrl());
+
+                            // Step 2: Upload to S3
+                            uploadToS3(fileUri, presignedUrl, fileName, mimeType, fileSize, caption);
+                        } else {
+                            Log.e(TAG, "Failed to generate presigned URL: " + apiResponse.getMessageOrDefault("Unknown error"));
+                            Toast.makeText(HomePage.this, "Failed to generate upload URL", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Log.e(TAG, "Failed to generate presigned URL: " + response.code());
+                        Toast.makeText(HomePage.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<ApiResponse<PresignedUrl>> call, @NonNull Throwable t) {
+                    Log.e(TAG, "Error generating presigned URL", t);
+                    Toast.makeText(HomePage.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error uploading file", e);
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Step 2: Upload file to S3 using presigned URL
+     */
+    private void uploadToS3(Uri fileUri, PresignedUrl presignedUrl, String fileName, String mimeType, long fileSize, String caption) {
+        new Thread(() -> {
+            try {
+                // Read file content
+                InputStream inputStream = getContentResolver().openInputStream(fileUri);
+                if (inputStream == null) {
+                    runOnUiThread(() -> Toast.makeText(this, "Cannot read file", Toast.LENGTH_SHORT).show());
+                    return;
+                }
+
+                byte[] fileBytes = new byte[inputStream.available()];
+                inputStream.read(fileBytes);
+                inputStream.close();
+
+                // Create PUT request to S3
+                OkHttpClient client = new OkHttpClient();
+                RequestBody requestBody = RequestBody.create(fileBytes, MediaType.parse(presignedUrl.getContentType()));
+                Request request = new Request.Builder()
+                        .url(presignedUrl.getUrl())
+                        .put(requestBody)
+                        .header("Content-Type", presignedUrl.getContentType())
+                        .build();
+
+                // Execute upload
+                okhttp3.Response s3Response = client.newCall(request).execute();
+
+                if (s3Response.isSuccessful()) {
+                    Log.d(TAG, "File uploaded to S3 successfully");
+
+                    // Step 3: Create media record
+                    runOnUiThread(() -> createMediaRecord(presignedUrl, fileName, mimeType, fileSize, caption));
+                } else {
+                    Log.e(TAG, "Failed to upload to S3: " + s3Response.code());
+                    runOnUiThread(() -> Toast.makeText(this, "Upload failed: " + s3Response.code(), Toast.LENGTH_SHORT).show());
+                }
+
+                s3Response.close();
+
+            } catch (IOException e) {
+                Log.e(TAG, "Error uploading to S3", e);
+                runOnUiThread(() -> Toast.makeText(this, "Upload error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+        }).start();
+    }
+
+    /**
+     * Step 3: Create media record in database
+     */
+    private void createMediaRecord(PresignedUrl presignedUrl, String fileName, String mimeType, long fileSize, String caption) {
+        // Determine media type based on MIME type
+        String mediaType = mimeType.startsWith("image/") ? "IMAGE" : "VIDEO";
+
+        // Build create media request (without albumId for HomePage)
+        CreateMediaRequest request = new CreateMediaRequest.Builder()
+                .type(mediaType)
+                .mimeType(mimeType)
+                .filename(fileName)
+                .size(fileSize)
+                .visibility("PUBLIC")
+                .processingStatus("DONE")
+                .caption(caption)
+                .filePath(presignedUrl.getUploadName())
+                .albumsId(albumId)
+                .build();
+
+        ApiClient.getApiService(this).createMedia(request).enqueue(new Callback<ApiResponse<Media>>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponse<Media>> call, @NonNull Response<ApiResponse<Media>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<Media> apiResponse = response.body();
+
+                    if (apiResponse.isSuccess() && apiResponse.hasData()) {
+                        Media media = apiResponse.getData();
+                        Log.d(TAG, "Media created successfully: " + media.getFilename());
+
+                        Toast.makeText(HomePage.this, "Upload successful!", Toast.LENGTH_SHORT).show();
+
+                        // Reload media list
+                        loadAlbumsAndMedia();
+                    } else {
+                        Log.e(TAG, "Failed to create media: " + apiResponse.getMessageOrDefault("Unknown error"));
+                        Toast.makeText(HomePage.this, "Failed to create media record", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Log.e(TAG, "Failed to create media: " + response.code());
+                    Toast.makeText(HomePage.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ApiResponse<Media>> call, @NonNull Throwable t) {
+                Log.e(TAG, "Error creating media", t);
+                Toast.makeText(HomePage.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
