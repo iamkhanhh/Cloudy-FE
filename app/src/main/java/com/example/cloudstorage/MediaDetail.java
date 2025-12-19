@@ -150,8 +150,8 @@ public class MediaDetail extends AppCompatActivity {
         // Load image using Glide
         Glide.with(this)
                 .load(imageUrl)
-                .placeholder(R.drawable.tomhum)
-                .error(R.drawable.tomhum)
+                .placeholder(R.drawable.ic_images)
+                .error(R.drawable.ic_images)
                 .into(ivMedia);
     }
 

@@ -326,8 +326,8 @@ public class HomePage extends AppCompatActivity {
                     // Load image thumbnail using Glide
                     Glide.with(this)
                             .load(media.getFilePath())
-                            .placeholder(R.drawable.folder)
-                            .error(R.drawable.folder)
+                            .placeholder(R.drawable.ic_images)
+                            .error(R.drawable.ic_images)
                             .centerCrop()
                             .into(ivFolderIcon);
                 } else {

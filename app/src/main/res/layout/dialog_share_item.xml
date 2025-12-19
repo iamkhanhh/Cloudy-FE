@@ -35,7 +35,6 @@
         android:hint="Enter receiver's email"
         android:inputType="textEmailAddress"
         android:padding="12dp"
-        android:background="@drawable/edit_text_background"
         android:fontFamily="@font/gilroy_regular"
         android:textSize="14sp"
         android:layout_marginBottom="20dp"/>

@@ -1,5 +1,6 @@
 package com.example.cloudstorage;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -8,6 +9,8 @@ import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,9 +32,11 @@ import com.example.cloudstorage.api.ApiClient;
 import com.example.cloudstorage.models.Album;
 import com.example.cloudstorage.models.ApiResponse;
 import com.example.cloudstorage.models.CreateMediaRequest;
+import com.example.cloudstorage.models.CreateShareRequest;
 import com.example.cloudstorage.models.Media;
 import com.example.cloudstorage.models.PresignedUrl;
 import com.example.cloudstorage.models.PresignedUrlRequest;
+import com.example.cloudstorage.models.Share;
 import com.google.android.flexbox.FlexboxLayout;
 
 import java.io.IOException;
@@ -57,7 +62,8 @@ public class FolderDetails extends AppCompatActivity {
     private TextView tvAlbumName;
     private TextView tvAlbumDescription;
     private DrawerLayout drawerLayout;
-    private Uri selectedMediaUri; 
+    private Uri selectedMediaUri;
+    private ImageView imagePreview;
 
     private final ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
         new ActivityResultContracts.StartActivityForResult(),
@@ -274,10 +280,10 @@ public class FolderDetails extends AppCompatActivity {
                 Toast.makeText(this, "Edit: " + media.getFilename(), Toast.LENGTH_SHORT).show();
                 return true;
             } else if (itemId == R.id.menu_delete) {
-                deleteMediaItem(item.getId());
+                deleteMediaItem(media.getId());
                 return true;
             } else if (itemId == R.id.menu_share) {
-                shareItem(item);
+                shareItem(media);
                 return true;
             }
             return false;
@@ -297,26 +303,26 @@ public class FolderDetails extends AppCompatActivity {
                     ApiResponse<Void> apiResponse = response.body();
 
                     if (apiResponse.isSuccess()) {
-                        Toast.makeText(HomePage.this,
+                        Toast.makeText(FolderDetails.this,
                                 apiResponse.getMessageOrDefault("Media deleted successfully!"),
                                 Toast.LENGTH_SHORT).show();
 
                         // Reload data
-                        loadAlbumsAndMedia();
+                        loadAlbumMedia();
                     } else {
                         Log.e(TAG, "Failed to delete media: " + apiResponse.getMessageOrDefault("Unknown error"));
-                        Toast.makeText(HomePage.this, "Failed to delete media", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(FolderDetails.this, "Failed to delete media", Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     Log.e(TAG, "Failed to delete media: " + response.code());
-                    Toast.makeText(HomePage.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(FolderDetails.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<ApiResponse<Void>> call, @NonNull Throwable t) {
                 Log.e(TAG, "Error deleting media", t);
-                Toast.makeText(HomePage.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(FolderDetails.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -341,7 +347,7 @@ public class FolderDetails extends AppCompatActivity {
 
         // Set title
         String itemType = "Media";
-        tvShareTitle.setText("Share " + itemType + ": " + item.getName());
+        tvShareTitle.setText("Share " + itemType + ": " + item.getFilename());
 
         // Cancel button
         btnCancel.setOnClickListener(v -> dialog.dismiss());
@@ -387,23 +393,23 @@ public class FolderDetails extends AppCompatActivity {
                     ApiResponse<Share> apiResponse = response.body();
 
                     if (apiResponse.isSuccess()) {
-                        Toast.makeText(HomePage.this,
+                        Toast.makeText(FolderDetails.this,
                                 apiResponse.getMessageOrDefault("Shared successfully!"),
                                 Toast.LENGTH_SHORT).show();
                     } else {
                         Log.e(TAG, "Failed to share: " + apiResponse.getMessageOrDefault("Unknown error"));
-                        Toast.makeText(HomePage.this, "Failed to share", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(FolderDetails.this, "Failed to share", Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     Log.e(TAG, "Failed to share: " + response.code());
-                    Toast.makeText(HomePage.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(FolderDetails.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<ApiResponse<Share>> call, @NonNull Throwable t) {
                 Log.e(TAG, "Error sharing", t);
-                Toast.makeText(HomePage.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(FolderDetails.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -538,18 +544,18 @@ public class FolderDetails extends AppCompatActivity {
                             uploadToS3(fileUri, presignedUrl, fileName, mimeType, fileSize, caption);
                         } else {
                             Log.e(TAG, "Failed to generate presigned URL: " + apiResponse.getMessageOrDefault("Unknown error"));
-                            Toast.makeText(HomePage.this, "Failed to generate upload URL", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(FolderDetails.this, "Failed to generate upload URL", Toast.LENGTH_SHORT).show();
                         }
                     } else {
                         Log.e(TAG, "Failed to generate presigned URL: " + response.code());
-                        Toast.makeText(HomePage.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(FolderDetails.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<ApiResponse<PresignedUrl>> call, @NonNull Throwable t) {
                     Log.e(TAG, "Error generating presigned URL", t);
-                    Toast.makeText(HomePage.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(FolderDetails.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -637,24 +643,24 @@ public class FolderDetails extends AppCompatActivity {
                         Media media = apiResponse.getData();
                         Log.d(TAG, "Media created successfully: " + media.getFilename());
 
-                        Toast.makeText(HomePage.this, "Upload successful!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(FolderDetails.this, "Upload successful!", Toast.LENGTH_SHORT).show();
 
                         // Reload media list
-                        loadAlbumsAndMedia();
+                        loadAlbumMedia();
                     } else {
                         Log.e(TAG, "Failed to create media: " + apiResponse.getMessageOrDefault("Unknown error"));
-                        Toast.makeText(HomePage.this, "Failed to create media record", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(FolderDetails.this, "Failed to create media record", Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     Log.e(TAG, "Failed to create media: " + response.code());
-                    Toast.makeText(HomePage.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(FolderDetails.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<ApiResponse<Media>> call, @NonNull Throwable t) {
                 Log.e(TAG, "Error creating media", t);
-                Toast.makeText(HomePage.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(FolderDetails.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
