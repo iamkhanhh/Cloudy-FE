@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
     private void showLoading(boolean isLoading) {
         if (isLoading) {
             signInButton.setEnabled(false);
-            signInButton.setText("Đang đăng nhập...");
+            signInButton.setText("Loading...");
         } else {
             signInButton.setEnabled(true);
             signInButton.setText("Sign In");
