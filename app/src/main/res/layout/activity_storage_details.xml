@@ -109,11 +109,11 @@
         app:layout_constraintWidth_percent="0.95">
 
         <!-- Mục Images -->
-        <include layout="@layout/storage_item_layout"
+        <include layout="@layout/component_storage_item_layout"
             android:id="@+id/item_images"/>
 
         <!-- Mục Videos -->
-        <include layout="@layout/storage_item_layout"
+        <include layout="@layout/component_storage_item_layout"
             android:id="@+id/item_videos"/>
 
     </LinearLayout>
