@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/curved_background">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/tv_share_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Share Item"
+        android:textSize="20sp"
+        android:fontFamily="@font/gilroy_bold"
+        android:textColor="#22215B"
+        android:gravity="center"
+        android:layout_marginBottom="20dp"/>
+
+    <!-- Email Input -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Receiver Email"
+        android:textSize="14sp"
+        android:fontFamily="@font/gilroy_medium"
+        android:textColor="#22215B"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/et_receiver_email"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="Enter receiver's email"
+        android:inputType="textEmailAddress"
+        android:padding="12dp"
+        android:fontFamily="@font/gilroy_regular"
+        android:textSize="14sp"
+        android:layout_marginBottom="20dp"/>
+
+    <!-- Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <!-- Cancel Button -->
+        <Button
+            android:id="@+id/btn_cancel_share"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="Cancel"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:layout_marginEnd="10dp"/>
+
+        <!-- Share Button -->
+        <Button
+            android:id="@+id/btn_share"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="Share"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:layout_marginStart="10dp"/>
+
+    </LinearLayout>
+
+</LinearLayout>

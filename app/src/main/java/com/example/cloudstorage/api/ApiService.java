@@ -3,9 +3,13 @@ package com.example.cloudstorage.api;
 import com.example.cloudstorage.models.Album;
 import com.example.cloudstorage.models.ApiResponse;
 import com.example.cloudstorage.models.ChangePasswordRequest;
+import com.example.cloudstorage.models.CreateMediaRequest;
+import com.example.cloudstorage.models.CreateShareRequest;
 import com.example.cloudstorage.models.LoginRequest;
 import com.example.cloudstorage.models.LoginResponse;
 import com.example.cloudstorage.models.Media;
+import com.example.cloudstorage.models.PresignedUrl;
+import com.example.cloudstorage.models.PresignedUrlRequest;
 import com.example.cloudstorage.models.RegisterRequest;
 import com.example.cloudstorage.models.RegisterResponse;
 import com.example.cloudstorage.models.ReportRequest;
@@ -21,6 +25,7 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.DELETE;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
@@ -80,6 +85,18 @@ public interface ApiService {
             @Path("id") int id,
             @Body VerifyAccountRequest request
     );
+
+    /**
+     * POST /media/generate-single-presigned-url
+     * Generate presigned url
+     *
+     * Backend response: { "status": "success", "message": "...", "data": { "id": x, "email": "..." } }
+     *
+     * @param request 
+     * @return ApiResponse PresignedUrl
+     */
+    @POST("media/generate-single-presigned-url")
+    Call<ApiResponse<PresignedUrl>> generatePresignedUrl(@Body PresignedUrlRequest request);
 
     /**
      * POST /auth/resend-otp
@@ -196,6 +213,19 @@ public interface ApiService {
     Call<ApiResponse<List<Media>>> getMediaByAlbumId(@Query("albumId") int albumId);
 
     /**
+     * POST /media
+     * Tạo media record mới sau khi upload file lên S3
+     * Authorization header sẽ tự động được thêm bởi AuthInterceptor
+     *
+     * Backend response: { "status": "success", "message": "Media created successfully", "data": { ...media object... } }
+     *
+     * @param createMediaRequest chứa thông tin media (type, mime_type, filename, size, file_path, etc.)
+     * @return ApiResponse wrapping Media object
+     */
+    @POST("media")
+    Call<ApiResponse<Media>> createMedia(@Body CreateMediaRequest createMediaRequest);
+
+    /**
      * GET /shares
      * Lấy danh sách tất cả media và albums được chia sẻ với user hiện tại
      * Authorization header sẽ tự động được thêm bởi AuthInterceptor
@@ -209,6 +239,45 @@ public interface ApiService {
      */
     @GET("shares")
     Call<ApiResponse<List<Share>>> getSharedItems();
+
+    /**
+     * POST /shares
+     * Chia sẻ media hoặc album với người dùng khác qua email
+     * Authorization header sẽ tự động được thêm bởi AuthInterceptor
+     *
+     * Backend response: { "status": "success", "message": "Share created successfully", "data": { ...share object... } }
+     *
+     * @param createShareRequest chứa resource_type, resource_id, permission, receiver_email
+     * @return ApiResponse wrapping Share object
+     */
+    @POST("shares")
+    Call<ApiResponse<Share>> shareResource(@Body CreateShareRequest createShareRequest);
+
+    /**
+     * DELETE /media/{id}
+     * Xóa media theo ID (soft delete)
+     * Authorization header sẽ tự động được thêm bởi AuthInterceptor
+     *
+     * Backend response: { "status": "success", "message": "Media deleted successfully" }
+     *
+     * @param id Media ID cần xóa
+     * @return ApiResponse with no data (Void)
+     */
+    @DELETE("media/{id}")
+    Call<ApiResponse<Void>> deleteMedia(@Path("id") int id);
+
+    /**
+     * DELETE /albums/{id}
+     * Xóa album theo ID (soft delete)
+     * Authorization header sẽ tự động được thêm bởi AuthInterceptor
+     *
+     * Backend response: { "status": "success", "message": "Album deleted successfully" }
+     *
+     * @param id Album ID cần xóa
+     * @return ApiResponse with no data (Void)
+     */
+    @DELETE("albums/{id}")
+    Call<ApiResponse<Void>> deleteAlbum(@Path("id") int id);
 
     /**
      * POST /logout (nếu backend có endpoint này)
