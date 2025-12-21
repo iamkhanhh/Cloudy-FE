@@ -42,7 +42,7 @@ public class CreateAccountActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.create_account);
+        setContentView(R.layout.activity_create_account);
 
         // Khởi tạo views
         firstNameInput = findViewById(R.id.first_name_input);

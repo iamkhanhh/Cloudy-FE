@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -62,7 +63,7 @@ import retrofit2.Response;
 import com.google.android.material.textfield.TextInputEditText;
 
 
-public class HomePage extends AppCompatActivity {
+public class HomePage extends BaseActivity {
     private static final String TAG = "HomePage";
 
     private TokenManager tokenManager;
@@ -110,6 +111,23 @@ public class HomePage extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home_page);
 
+
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+    }
+
+    @Override
+    protected int getLayoutResourceId() {
+        return R.layout.activity_home_page;
+    }
+
+
+    @Override
+    protected void initViews() {
         tokenManager = new TokenManager(this);
 
         DrawerLayout drawerLayout =  findViewById(R.id.main);
@@ -198,12 +216,18 @@ public class HomePage extends AppCompatActivity {
         // Set the click listener
         addFileButton.setOnClickListener(v -> showUploadDialog());
 
+    }
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+    @Override
+    protected void onRefreshData() {
+        Log.d("HomePage", "onRefreshData called");
+        loadAlbumsAndMedia();
+        new Handler().postDelayed(() -> {
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }},2000);
+
+
     }
 
     /**
