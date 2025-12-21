@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,6 +13,7 @@ import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -409,9 +411,15 @@ public class HomePage extends BaseActivity {
 
         popup.setOnMenuItemClickListener(menuItem -> {
             int itemId = menuItem.getItemId();
+            TextView folderNameTextView = view.getRootView().findViewById(R.id.tv_folder_name);
+            TextView albumNameTextView = view.getRootView().findViewById(R.id.tv_album_name);
+
             if (itemId == R.id.menu_edit) {
-                Toast.makeText(this, "Edit: " + item.getName(), Toast.LENGTH_SHORT).show();
-                return true;
+                if (item.isMedia()) {
+                    showEditMediaDialog(item, albumNameTextView);
+                } else if (item.isAlbum()) {
+                    showEditMediaDialog(item, folderNameTextView);
+                }                return true;
                 // xóa file
             } else if (itemId == R.id.menu_delete) {
                 // Delete media or album based on item type
@@ -1023,6 +1031,97 @@ public class HomePage extends BaseActivity {
         } else {
             Toast.makeText(this, "No app found to handle this action.", Toast.LENGTH_SHORT).show();
         }
+    }
+
+
+    // Thêm vào HomePage.java
+    private void showEditMediaDialog(FolderItem item, TextView nameTextView) {
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_edit_media);
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+
+        TextInputEditText nameEditText = dialog.findViewById(R.id.edit_text_media_name);
+        TextInputEditText captionEditText = dialog.findViewById(R.id.edit_text_media_caption);
+        Button cancelButton = dialog.findViewById(R.id.button_cancel);
+        Button saveButton = dialog.findViewById(R.id.button_save);
+
+        // Điền thông tin hiện tại của file
+        Media media = item.getMedia();
+        if (media == null) {
+            Toast.makeText(this, "Media data not found.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        nameEditText.setText(media.getFilename());
+        captionEditText.setText(media.getCaption());
+
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+        saveButton.setOnClickListener(v -> {
+            String newName = nameEditText.getText().toString().trim();
+            String newCaption = captionEditText.getText().toString().trim();
+
+            if (newName.isEmpty()) {
+                nameEditText.setError("File name cannot be empty");
+                return;
+            }
+
+            // TODO: Gọi API để cập nhật thông tin media
+            // updateMediaOnServer(media.getId(), newName, newCaption);
+
+            item.getMedia().setFilename(newName);
+            item.getMedia().setCaption(newCaption);
+
+            Toast.makeText(this, "Saving changes...", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+
+    // Thêm vào HomePage.java
+    private void showEditAlbumDialog(FolderItem item, TextView nameTextView) {
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_edit_album);
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        TextInputEditText nameEditText = dialog.findViewById(R.id.edit_text_album_name);
+        TextInputEditText descEditText = dialog.findViewById(R.id.edit_text_album_description);
+        Button cancelButton = dialog.findViewById(R.id.button_cancel);
+        Button saveButton = dialog.findViewById(R.id.button_save);
+
+        // Điền thông tin hiện tại của folder
+        Album album = item.getAlbum();
+        if (album == null) {
+            Toast.makeText(this, "Folder data not found.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        nameEditText.setText(album.getName());
+        descEditText.setText(album.getDescription());
+
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+        saveButton.setOnClickListener(v -> {
+            String newName = nameEditText.getText().toString().trim();
+            String newDesc = descEditText.getText().toString().trim();
+
+            if (newName.isEmpty()) {
+                nameEditText.setError("Folder name cannot be empty");
+                return;
+            }
+
+            // TODO: Gọi API để cập nhật thông tin album
+            // updateAlbumOnServer(album.getId(), newName, newDesc);
+
+            item.getAlbum().setName(newName);
+            item.getAlbum().setDescription(newDesc);
+
+            nameTextView.setText(newName);
+
+            Toast.makeText(this, "Saving changes...", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
+
+        dialog.show();
     }
 
 
