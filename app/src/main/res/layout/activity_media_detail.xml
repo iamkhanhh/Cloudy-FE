@@ -71,7 +71,7 @@
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 android:visibility="gone"
-                android:src="@drawable/tomhum"/>
+                android:src="@drawable/default_media"/>
 
             <!--        VIDEO VIEW cho video -->
             <VideoView
