@@ -393,6 +393,14 @@ public class HomePage extends BaseActivity {
     private void showOptionsMenu(View view, FolderItem item) {
         // 1. Tạo PopupMenu
         PopupMenu popup = new PopupMenu(this, view);
+        View itemView = (View) view.getParent().getParent(); // Điều chỉnh nếu cần
+        TextView nameTextView = itemView.findViewById(R.id.tv_folder_name);
+        if (nameTextView == null) {
+            Log.e(TAG, "Could not find name TextView in itemView.");
+            // Fallback: Tải lại toàn bộ trang nếu không tìm thấy TextView
+            // (Đây là giải pháp an toàn để tránh crash và vẫn cập nhật được)
+            nameTextView = new TextView(this); // Tạo một đối tượng giả để tránh lỗi
+        }
 
         // 2. Chọn file menu dựa trên loại item
         if (item.getType() == 1) {
@@ -408,17 +416,15 @@ public class HomePage extends BaseActivity {
             return;
         }
 
-
+        final TextView finalNameTextView = nameTextView; // Cần một biến final để dùng trong lambda
         popup.setOnMenuItemClickListener(menuItem -> {
             int itemId = menuItem.getItemId();
-            TextView folderNameTextView = view.getRootView().findViewById(R.id.tv_folder_name);
-            TextView albumNameTextView = view.getRootView().findViewById(R.id.tv_album_name);
 
             if (itemId == R.id.menu_edit) {
                 if (item.isMedia()) {
-                    showEditMediaDialog(item, albumNameTextView);
+                    showEditMediaDialog(item, finalNameTextView);
                 } else if (item.isAlbum()) {
-                    showEditMediaDialog(item, folderNameTextView);
+                    showEditAlbumDialog(item, finalNameTextView);
                 }                return true;
                 // xóa file
             } else if (itemId == R.id.menu_delete) {
@@ -1070,6 +1076,8 @@ public class HomePage extends BaseActivity {
 
             item.getMedia().setFilename(newName);
             item.getMedia().setCaption(newCaption);
+
+            nameTextView.setText(newName);
 
             Toast.makeText(this, "Saving changes...", Toast.LENGTH_SHORT).show();
             dialog.dismiss();
