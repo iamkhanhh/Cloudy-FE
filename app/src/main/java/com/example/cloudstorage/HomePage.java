@@ -1,6 +1,7 @@
 package com.example.cloudstorage;
 
 import android.app.Dialog;
+import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +9,7 @@ import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.provider.OpenableColumns;
 import android.util.Log;
@@ -53,6 +55,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import kotlinx.coroutines.channels.ChannelSegment;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -430,14 +433,18 @@ public class HomePage extends BaseActivity {
 
                 // tải file
             } else if (itemId == R.id.menu_download) {
-                // Delete media or album based on item type
-                if (item.isMedia()) {
-                    Toast.makeText(this, "Download: " + item.getName(), Toast.LENGTH_SHORT).show();
-
-                } else if (item.isAlbum()) {
-                    Toast.makeText(this, "Download: " + item.getName(), Toast.LENGTH_SHORT).show();
+                if (item.isMedia()){
+                Media media = item.getMedia();
+                if (media != null && media.getFilePath() != null){
+                    startDownload(media.getFilePath(), media.getFilename());
+                }else {
+                    Toast.makeText(HomePage.this, "No file to download", Toast.LENGTH_SHORT).show();
                 }
-                return true;
+                }else {
+                    return true;
+                }
+
+
 
 
                 // chia sẻ backend
@@ -1229,6 +1236,35 @@ public class HomePage extends BaseActivity {
             }
         });
     }
+
+    /**
+     * Handles downloading a file using Android's DownloadManager.
+     * @param fileUrl The direct URL of the file to download.
+     * @param fileName The name to save the file as.
+     */
+    private void startDownload(String fileUrl, String fileName) {
+        if (fileUrl == null || fileUrl.isEmpty()) {
+            Toast.makeText(this, "File URL is not available.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(fileUrl));
+        request.setTitle(fileName); // Tên hiển thị trên thanh thông báo
+        request.setDescription("Downloading " + fileName); // Mô tả chi tiết
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED); // Hiển thị thông báo khi tải và khi hoàn tất
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName); // Lưu file vào thư mục "Downloads" của điện thoại
+        request.setAllowedOverMetered(true); // Cho phép tải bằng dữ liệu di động
+        request.setAllowedOverRoaming(true); // Cho phép tải khi chuyển vùng
+
+        // 4. Lấy dịch vụ DownloadManager của hệ thống và đưa yêu cầu vào hàng đợi
+        DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        if (downloadManager != null) {
+            downloadManager.enqueue(request);
+            Toast.makeText(this, "Download started for " + fileName, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Unable to start download.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     /**
      * Xử lý logout
