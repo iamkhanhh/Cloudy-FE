@@ -36,6 +36,7 @@ import com.bumptech.glide.Glide;
 import com.example.cloudstorage.api.ApiClient;
 import com.example.cloudstorage.models.Album;
 import com.example.cloudstorage.models.ApiResponse;
+import com.example.cloudstorage.models.CreateAlbumRequest;
 import com.example.cloudstorage.models.CreateMediaRequest;
 import com.example.cloudstorage.models.CreateShareRequest;
 import com.example.cloudstorage.models.FolderItem;
@@ -235,13 +236,10 @@ public class HomePage extends BaseActivity {
      * Load albums and media from backend
      */
     private void loadAlbumsAndMedia() {
-        // Clear existing static items from layout
         foldersListLayout.removeAllViews();
         folderItems.clear();
 
-        // Load both albums and media in parallel
         loadAlbums();
-        //TODO: fallback lúc đang load ảnh
 
         loadMedia();
     }
@@ -418,7 +416,7 @@ public class HomePage extends BaseActivity {
                 if (item.isMedia()) {
                     showEditMediaDialog(item, albumNameTextView);
                 } else if (item.isAlbum()) {
-                    showEditMediaDialog(item, folderNameTextView);
+                    showEditAlbumDialog(item, folderNameTextView);
                 }                return true;
                 // xóa file
             } else if (itemId == R.id.menu_delete) {
@@ -1065,8 +1063,7 @@ public class HomePage extends BaseActivity {
                 return;
             }
 
-            // TODO: Gọi API để cập nhật thông tin media
-            // updateMediaOnServer(media.getId(), newName, newCaption);
+            updateMediaOnServer(media.getId(), newName, newCaption);
 
             item.getMedia().setFilename(newName);
             item.getMedia().setCaption(newCaption);
@@ -1078,6 +1075,41 @@ public class HomePage extends BaseActivity {
         dialog.show();
     }
 
+    private  void updateMediaOnServer(int id, String newName, String newCaption) {
+        CreateMediaRequest request = new CreateMediaRequest.Builder()
+                .filename(newName)
+                .caption(newCaption)
+                .build();
+
+        ApiClient.getApiService(this).updateMediaById(id, request).enqueue(new Callback<ApiResponse<Void>>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponse<Void>> call, @NonNull Response<ApiResponse<Void>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<Void> apiResponse = response.body();
+
+                    if (apiResponse.isSuccess()) {
+                        Toast.makeText(HomePage.this,
+                                apiResponse.getMessageOrDefault("Media updated successfully!"),
+                                Toast.LENGTH_SHORT).show();
+
+                        loadMedia();
+                    } else {
+                        Log.e(TAG, "Failed to update media: " + apiResponse.getMessageOrDefault("Unknown error"));
+                        Toast.makeText(HomePage.this, "Failed to update media", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Log.e(TAG, "Failed to update media: " + response.code());
+                    Toast.makeText(HomePage.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ApiResponse<Void>> call, @NonNull Throwable t) {
+                Log.e(TAG, "Error updating media", t);
+                Toast.makeText(HomePage.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     // Thêm vào HomePage.java
     private void showEditAlbumDialog(FolderItem item, TextView nameTextView) {
@@ -1109,8 +1141,7 @@ public class HomePage extends BaseActivity {
                 return;
             }
 
-            // TODO: Gọi API để cập nhật thông tin album
-            // updateAlbumOnServer(album.getId(), newName, newDesc);
+             updateAlbumOnServer(album.getId(), newName, newDesc);
 
             item.getAlbum().setName(newName);
             item.getAlbum().setDescription(newDesc);
@@ -1124,7 +1155,80 @@ public class HomePage extends BaseActivity {
         dialog.show();
     }
 
+    private  void updateAlbumOnServer(int id, String newName, String newDesc) {
+        CreateAlbumRequest request = new CreateAlbumRequest.Builder()
+                .name(newName)
+                .description(newDesc)
+                .visibility("PUBLIC")
+                .build();
 
+        ApiClient.getApiService(this).updateAlbumById(id, request).enqueue(new Callback<ApiResponse<Void>>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponse<Void>> call, @NonNull Response<ApiResponse<Void>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<Void> apiResponse = response.body();
+
+                    if (apiResponse.isSuccess()) {
+                        Toast.makeText(HomePage.this,
+                                apiResponse.getMessageOrDefault("Album updated successfully!"),
+                                Toast.LENGTH_SHORT).show();
+
+                        loadAlbums();
+                    } else {
+                        Log.e(TAG, "Failed to update album: " + apiResponse.getMessageOrDefault("Unknown error"));
+                        Toast.makeText(HomePage.this, "Failed to update album", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Log.e(TAG, "Failed to update album: " + response.code());
+                    Toast.makeText(HomePage.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ApiResponse<Void>> call, @NonNull Throwable t) {
+                Log.e(TAG, "Error updating media", t);
+                Toast.makeText(HomePage.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void createAlbumRecord(String name, String description) {
+        CreateAlbumRequest request = new CreateAlbumRequest.Builder()
+                .name(name)
+                .description(description)
+                .visibility("PUBLIC")
+                .build();
+
+        ApiClient.getApiService(this).createAlbum(request).enqueue(new Callback<ApiResponse<Album>>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponse<Album>> call, @NonNull Response<ApiResponse<Album>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<Album> apiResponse = response.body();
+
+                    if (apiResponse.isSuccess() && apiResponse.hasData()) {
+                        Album album = apiResponse.getData();
+                        Log.d(TAG, "Media created successfully: " + album.getName());
+
+                        Toast.makeText(HomePage.this, "Create album successful!", Toast.LENGTH_SHORT).show();
+
+                        loadAlbumsAndMedia();
+                    } else {
+                        Log.e(TAG, "Failed to create album: " + apiResponse.getMessageOrDefault("Unknown error"));
+                        Toast.makeText(HomePage.this, "Failed to create album record", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Log.e(TAG, "Failed to create album: " + response.code());
+                    Toast.makeText(HomePage.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ApiResponse<Album>> call, @NonNull Throwable t) {
+                Log.e(TAG, "Error creating album", t);
+                Toast.makeText(HomePage.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     /**
      * Xử lý logout

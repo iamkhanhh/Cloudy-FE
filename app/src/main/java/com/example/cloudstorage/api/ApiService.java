@@ -3,6 +3,7 @@ package com.example.cloudstorage.api;
 import com.example.cloudstorage.models.Album;
 import com.example.cloudstorage.models.ApiResponse;
 import com.example.cloudstorage.models.ChangePasswordRequest;
+import com.example.cloudstorage.models.CreateAlbumRequest;
 import com.example.cloudstorage.models.CreateMediaRequest;
 import com.example.cloudstorage.models.CreateShareRequest;
 import com.example.cloudstorage.models.LoginRequest;
@@ -24,6 +25,7 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.DELETE;
 import retrofit2.http.PUT;
@@ -163,6 +165,19 @@ public interface ApiService {
     Call<ApiResponse<Media>> getMediaById(@Path("id") int id);
 
     /**
+     * PATCH /media/{id}
+     * Update chi tiết media (ảnh hoặc video) theo ID
+     *
+     * Backend response: { "status": "success"}
+     *
+     * @param id Media ID
+     * @param request chứa thông tin media (filename, caption)
+     * @return ApiResponse wrapping Media object
+     */
+    @PATCH("media/{id}")
+    Call<ApiResponse<Void>> updateMediaById(@Path("id") int id, @Body CreateMediaRequest request);
+
+    /**
      * GET /media
      * Lấy danh sách tất cả media của user hiện tại
      * Authorization header sẽ tự động được thêm bởi AuthInterceptor
@@ -213,6 +228,19 @@ public interface ApiService {
     Call<ApiResponse<List<Media>>> getMediaByAlbumId(@Query("albumId") int albumId);
 
     /**
+     * POST /media/download/{id}
+     * Lấy link download media (ảnh hoặc video) theo ID
+     * Authorization header sẽ tự động được thêm bởi AuthInterceptor
+     *
+     * Backend response: { "status": "success", "data": { ...media object... } }
+     *
+     * @param id Media ID
+     * @return ApiResponse wrapping Media object
+     */
+    @POST("media/download/{id}")
+    Call<ApiResponse<PresignedUrl>> getDownloadMedia(@Path("id") int id);
+
+    /**
      * POST /media
      * Tạo media record mới sau khi upload file lên S3
      * Authorization header sẽ tự động được thêm bởi AuthInterceptor
@@ -252,6 +280,30 @@ public interface ApiService {
      */
     @POST("shares")
     Call<ApiResponse<Share>> shareResource(@Body CreateShareRequest createShareRequest);
+
+    /**
+     * PATCH /albums/{id}
+     * Update chi tiết album theo ID
+     *
+     * Backend response: { "status": "success"}
+     *
+     * @param id Media ID
+     * @param request chứa thông tin media (filename, caption)
+     * @return ApiResponse wrapping Media object
+     */
+    @PATCH("albums/{id}")
+    Call<ApiResponse<Void>> updateAlbumById(@Path("id") int id, @Body CreateAlbumRequest request);
+
+    /**
+     * POST /albums
+     * Tao album moi
+     *
+     * Backend response: { "status": "success"}
+     *
+     * @return ApiResponse wrapping Media object
+     */
+    @POST("albums")
+    Call<ApiResponse<Album>> createAlbum(@Body CreateAlbumRequest request);
 
     /**
      * DELETE /media/{id}
