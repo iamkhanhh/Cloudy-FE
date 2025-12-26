@@ -181,7 +181,7 @@ public class SharedWithMe extends AppCompatActivity {
      */
     private void showOptionsMenu(View view, FolderItem item) {
         PopupMenu popup = new PopupMenu(this, view);
-        popup.getMenuInflater().inflate(R.menu.folder_option_menu, popup.getMenu());
+        popup.getMenuInflater().inflate(R.menu.menu_media_options, popup.getMenu());
 
         popup.setOnMenuItemClickListener(menuItem -> {
             int itemId = menuItem.getItemId();

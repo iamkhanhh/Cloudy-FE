@@ -8,38 +8,38 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Upload Image"
+        android:text="Edit File Info"
         android:textSize="20sp"
-        android:textColor="@color/black"
         android:textStyle="bold"
+        android:textColor="@color/black"
         android:layout_marginBottom="16dp"/>
 
-    <ImageView
-        android:id="@+id/image_preview"
-        android:layout_width="match_parent"
-        android:layout_height="180dp"
-        android:src="@drawable/media_upload_placeholder"
-        android:scaleType="centerCrop"
-        android:background="#eeeeee"
-        android:contentDescription="Image Preview"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp"/>
-
-    <Button
-        android:id="@+id/button_select_image"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layout_media_name"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="#567DF4"
+        android:hint="File Name">
 
-        android:text="Select Image" />
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_text_media_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <EditText
-        android:id="@+id/edit_text_caption"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layout_media_caption"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter a caption"
-        android:layout_marginTop="16dp"
-        android:inputType="textCapSentences"/>
+        android:layout_marginTop="8dp"
+        android:hint="Caption (Optional)">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_text_media_caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -49,22 +49,19 @@
 
         <Button
             android:id="@+id/button_cancel"
+            style="?attr/materialButtonOutlinedStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            style="?attr/materialButtonOutlinedStyle"
             android:text="Cancel"
-            android:textColor="#567DF4"
             android:layout_marginEnd="8dp"/>
 
         <Button
-            android:id="@+id/button_upload"
+            android:id="@+id/button_save"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:backgroundTint="#567DF4"
-
-            android:text="Upload"
+            android:text="Save"
             android:layout_marginStart="8dp"/>
     </LinearLayout>
 

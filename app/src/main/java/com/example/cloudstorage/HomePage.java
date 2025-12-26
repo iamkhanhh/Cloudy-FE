@@ -1,22 +1,22 @@
 package com.example.cloudstorage;
 
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.provider.MediaStore;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,14 +24,13 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
+import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import android.view.MenuItem;
 
 import com.bumptech.glide.Glide;
 import com.example.cloudstorage.api.ApiClient;
@@ -47,6 +46,7 @@ import com.example.cloudstorage.models.Share;
 import com.example.cloudstorage.utils.TokenManager;
 import com.google.android.flexbox.FlexboxLayout;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -56,13 +56,15 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okio.BufferedSink;
+import okio.Okio;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import com.google.android.material.textfield.TextInputEditText;
 
 
-public class HomePage extends AppCompatActivity {
+public class HomePage extends BaseActivity {
     private static final String TAG = "HomePage";
 
     private TokenManager tokenManager;
@@ -110,6 +112,23 @@ public class HomePage extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home_page);
 
+
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+    }
+
+    @Override
+    protected int getLayoutResourceId() {
+        return R.layout.activity_home_page;
+    }
+
+
+    @Override
+    protected void initViews() {
         tokenManager = new TokenManager(this);
 
         DrawerLayout drawerLayout =  findViewById(R.id.main);
@@ -198,12 +217,18 @@ public class HomePage extends AppCompatActivity {
         // Set the click listener
         addFileButton.setOnClickListener(v -> showUploadDialog());
 
+    }
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+    @Override
+    protected void onRefreshData() {
+        Log.d("HomePage", "onRefreshData called");
+        loadAlbumsAndMedia();
+        new Handler().postDelayed(() -> {
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }},2000);
+
+
     }
 
     /**
@@ -216,6 +241,8 @@ public class HomePage extends AppCompatActivity {
 
         // Load both albums and media in parallel
         loadAlbums();
+        //TODO: fallback lúc đang load ảnh
+
         loadMedia();
     }
 
@@ -364,14 +391,36 @@ public class HomePage extends AppCompatActivity {
      * Show options menu for folder item
      */
     private void showOptionsMenu(View view, FolderItem item) {
+        // 1. Tạo PopupMenu
         PopupMenu popup = new PopupMenu(this, view);
-        popup.getMenuInflater().inflate(R.menu.folder_option_menu, popup.getMenu());
+
+        // 2. Chọn file menu dựa trên loại item
+        if (item.getType() == 1) {
+//        public static final int TYPE_MEDIA = 1;
+            // Nếu là file, dùng menu có đủ tùy chọn
+            popup.getMenuInflater().inflate(R.menu.menu_media_options, popup.getMenu());
+        } else if (item.getType()== 0) {
+//        public static final int TYPE_ALBUM = 0;
+            // Nếu là thư mục, dùng menu đã lược bỏ
+            popup.getMenuInflater().inflate(R.menu.menu_folder_options, popup.getMenu());
+        } else {
+            // Trường hợp khác, có thể không hiển thị menu hoặc dùng menu mặc định
+            return;
+        }
+
 
         popup.setOnMenuItemClickListener(menuItem -> {
             int itemId = menuItem.getItemId();
+            TextView folderNameTextView = view.getRootView().findViewById(R.id.tv_folder_name);
+            TextView albumNameTextView = view.getRootView().findViewById(R.id.tv_album_name);
+
             if (itemId == R.id.menu_edit) {
-                Toast.makeText(this, "Edit: " + item.getName(), Toast.LENGTH_SHORT).show();
-                return true;
+                if (item.isMedia()) {
+                    showEditMediaDialog(item, albumNameTextView);
+                } else if (item.isAlbum()) {
+                    showEditMediaDialog(item, folderNameTextView);
+                }                return true;
+                // xóa file
             } else if (itemId == R.id.menu_delete) {
                 // Delete media or album based on item type
                 if (item.isMedia()) {
@@ -380,11 +429,27 @@ public class HomePage extends AppCompatActivity {
                     deleteAlbumItem(item.getId());
                 }
                 return true;
+
+                // tải file
+            } else if (itemId == R.id.menu_download) {
+                // Delete media or album based on item type
+                if (item.isMedia()) {
+                    Toast.makeText(this, "Download: " + item.getName(), Toast.LENGTH_SHORT).show();
+
+                } else if (item.isAlbum()) {
+                    Toast.makeText(this, "Download: " + item.getName(), Toast.LENGTH_SHORT).show();
+                }
+                return true;
+
+
+                // chia sẻ backend
             } else if (itemId == R.id.menu_share) {
                 shareItem(item);
                 return true;
+
+                // chia sẻ email
             } else if (itemId == R.id.menu_email_share) {
-                showSendEmailDialog();
+                showSendEmailDialog(item);
                 return true;
             }
             return false;
@@ -803,7 +868,7 @@ public class HomePage extends AppCompatActivity {
         });
     }
 
-    private void showSendEmailDialog() {
+    private void showSendEmailDialog(FolderItem item) {
         final Dialog emailDialog = new Dialog(this);
         emailDialog.setContentView(R.layout.dialog_send_email);
 
@@ -823,7 +888,7 @@ public class HomePage extends AppCompatActivity {
         Button sendButton = emailDialog.findViewById(R.id.button_send_email);
 
         // Gán giá trị mặc định (nếu cần)
-        subjectEditText.setText("Check out this media");
+        subjectEditText.setText("Check out this media: " + item.getName());
         bodyEditText.setText("Hi, I wanted to share this media with you.");
 
         // Xử lý sự kiện cho nút Cancel
@@ -844,17 +909,221 @@ public class HomePage extends AppCompatActivity {
                 return;
             }
 
-            // --- GỌI API GỬI MAIL CỦA BẠN TẠI ĐÂY ---
-            // Ví dụ:
-            // YourApiClass.sendEmail(toEmail, subject, body, new Callback<...>() { ... });
+//            // 1. Tạo một Intent để gửi email
+//            Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+//
+//            // 2. Thiết lập dữ liệu cho Intent
+//            // Dùng "mailto:" để đảm bảo chỉ các ứng dụng email mới xử lý Intent này
+//            emailIntent.setData(Uri.parse("mailto:"));
+//
+//            // 3. Đưa các thông tin cần thiết vào Intent
+//            emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{ toEmail }); // EXTRA_EMAIL là một mảng String
+//            emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+//            emailIntent.putExtra(Intent.EXTRA_TEXT, body);
+//
+//            // 4. Kiểm tra xem có ứng dụng nào trên điện thoại có thể xử lý Intent này không
+//            if (emailIntent.resolveActivity(getPackageManager()) != null) {
+//                // Nếu có, bắt đầu Activity (mở ứng dụng email)
+//                startActivity(emailIntent);
+//                emailDialog.dismiss(); // Đóng dialog của bạn
+//            } else {
+//                // Nếu không có ứng dụng email nào được cài đặt
+//                Toast.makeText(HomePage.this, "No email client found.", Toast.LENGTH_SHORT).show();
+//            }
 
-            Toast.makeText(HomePage.this, "Sending email to " + toEmail, Toast.LENGTH_SHORT).show();
+            String fileUrl = item.getMedia().getFilePath();
+            if (fileUrl == null || fileUrl.isEmpty()) {
+                Toast.makeText(this, "File URL is not available.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Log.d(TAG, "File URL: " + fileUrl);
 
-            emailDialog.dismiss(); // Đóng dialog sau khi gửi
+            emailDialog.dismiss(); // Đóng dialog nhập liệu
+            downloadAndShareFile(fileUrl, item.getName(), toEmail, subject, body);
+
+
         });
 
         emailDialog.show();
     }
+
+    private void downloadAndShareFile(String fileUrl, String fileName, String toEmail, String subject, String body) {
+        // Hiển thị dialog loading trong khi tải
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Preparing file for sharing...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        new Thread(() -> {
+            try {
+                // Tạo thư mục cache nếu chưa có
+                File cachePath = new File(getCacheDir(), "shared_files");
+                cachePath.mkdirs();
+                File tempMedia = new File(cachePath, fileName);
+
+                // Tải file bằng OkHttpClient
+                OkHttpClient client = new OkHttpClient();
+                Request request = new Request.Builder().url(fileUrl).build();
+                okhttp3.Response response = client.newCall(request).execute();
+
+                if (response.isSuccessful() && response.body() != null) {
+                    // Ghi file vào bộ nhớ cache
+                    BufferedSink sink = Okio.buffer(Okio.sink(tempMedia));
+                    sink.writeAll(response.body().source());
+                    sink.close();
+                    response.close();
+
+                    // Lấy URI của file đã tải bằng FileProvider (cách làm an toàn nhất)
+                    Uri fileUri = FileProvider.getUriForFile(
+                            HomePage.this,
+                            getApplicationContext().getPackageName() + ".provider", // Phải khớp với authorities trong Manifest
+                            tempMedia
+                    );
+
+                    // Chạy trên luồng UI để mở Intent
+                    runOnUiThread(() -> {
+                        progressDialog.dismiss();
+                        shareFileViaIntent(fileUri, toEmail, subject, body);
+                    });
+
+                } else {
+                    runOnUiThread(() -> {
+                        progressDialog.dismiss();
+                        Toast.makeText(this, "Failed to download file.", Toast.LENGTH_SHORT).show();
+                    });
+                }
+
+            } catch (IOException e) {
+                Log.e(TAG, "Error downloading file for sharing", e);
+                runOnUiThread(() -> {
+                    progressDialog.dismiss();
+                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+            }
+        }).start();
+    }
+
+    // Thêm phương thức mới này vào HomePage.java
+
+    private void shareFileViaIntent(Uri fileUri, String toEmail, String subject, String body) {
+        // Dùng ACTION_SEND để có thể đính kèm file
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+
+        // Xác định loại Intent và loại MIME
+        emailIntent.setType(getContentResolver().getType(fileUri));
+
+        // Đặt các thông tin email
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{toEmail});
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        emailIntent.putExtra(Intent.EXTRA_TEXT, body);
+
+        // Đính kèm file
+        emailIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+
+        // Thêm cờ để cấp quyền đọc URI cho ứng dụng email
+        emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        // Tạo Chooser để người dùng chọn ứng dụng
+        Intent chooser = Intent.createChooser(emailIntent, "Share file via...");
+
+        if (chooser.resolveActivity(getPackageManager()) != null) {
+            startActivity(chooser);
+        } else {
+            Toast.makeText(this, "No app found to handle this action.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    // Thêm vào HomePage.java
+    private void showEditMediaDialog(FolderItem item, TextView nameTextView) {
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_edit_media);
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+
+        TextInputEditText nameEditText = dialog.findViewById(R.id.edit_text_media_name);
+        TextInputEditText captionEditText = dialog.findViewById(R.id.edit_text_media_caption);
+        Button cancelButton = dialog.findViewById(R.id.button_cancel);
+        Button saveButton = dialog.findViewById(R.id.button_save);
+
+        // Điền thông tin hiện tại của file
+        Media media = item.getMedia();
+        if (media == null) {
+            Toast.makeText(this, "Media data not found.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        nameEditText.setText(media.getFilename());
+        captionEditText.setText(media.getCaption());
+
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+        saveButton.setOnClickListener(v -> {
+            String newName = nameEditText.getText().toString().trim();
+            String newCaption = captionEditText.getText().toString().trim();
+
+            if (newName.isEmpty()) {
+                nameEditText.setError("File name cannot be empty");
+                return;
+            }
+
+            // TODO: Gọi API để cập nhật thông tin media
+            // updateMediaOnServer(media.getId(), newName, newCaption);
+
+            item.getMedia().setFilename(newName);
+            item.getMedia().setCaption(newCaption);
+
+            Toast.makeText(this, "Saving changes...", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+
+    // Thêm vào HomePage.java
+    private void showEditAlbumDialog(FolderItem item, TextView nameTextView) {
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_edit_album);
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        TextInputEditText nameEditText = dialog.findViewById(R.id.edit_text_album_name);
+        TextInputEditText descEditText = dialog.findViewById(R.id.edit_text_album_description);
+        Button cancelButton = dialog.findViewById(R.id.button_cancel);
+        Button saveButton = dialog.findViewById(R.id.button_save);
+
+        // Điền thông tin hiện tại của folder
+        Album album = item.getAlbum();
+        if (album == null) {
+            Toast.makeText(this, "Folder data not found.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        nameEditText.setText(album.getName());
+        descEditText.setText(album.getDescription());
+
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+        saveButton.setOnClickListener(v -> {
+            String newName = nameEditText.getText().toString().trim();
+            String newDesc = descEditText.getText().toString().trim();
+
+            if (newName.isEmpty()) {
+                nameEditText.setError("Folder name cannot be empty");
+                return;
+            }
+
+            // TODO: Gọi API để cập nhật thông tin album
+            // updateAlbumOnServer(album.getId(), newName, newDesc);
+
+            item.getAlbum().setName(newName);
+            item.getAlbum().setDescription(newDesc);
+
+            nameTextView.setText(newName);
+
+            Toast.makeText(this, "Saving changes...", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
 
 
     /**
