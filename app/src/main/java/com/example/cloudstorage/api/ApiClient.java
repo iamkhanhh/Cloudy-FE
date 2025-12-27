@@ -13,7 +13,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * ApiClient - Singleton class để tạo và quản lý Retrofit instance
  */
 public class ApiClient {
-    private static final String BASE_URL = "http://emtlu.io.vn/cloudy/api/v1/";
+    private static final String BASE_URL = "http://emtlu.io.vn/api/v1/";
 
     private static Retrofit retrofit = null;
     private static ApiService apiService = null;
