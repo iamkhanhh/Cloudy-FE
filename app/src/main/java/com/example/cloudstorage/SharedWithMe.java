@@ -1,5 +1,7 @@
 package com.example.cloudstorage;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +19,8 @@ import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import com.example.cloudstorage.utils.TokenManager;
+
 
 import com.bumptech.glide.Glide;
 import com.example.cloudstorage.api.ApiClient;
@@ -39,6 +43,7 @@ public class SharedWithMe extends AppCompatActivity {
     private FlexboxLayout foldersListLayout;
     private List<FolderItem> folderItems;
     private DrawerLayout drawerLayout;
+    private TokenManager tokenManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +51,91 @@ public class SharedWithMe extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_shared_with_me);
 
+        tokenManager = new TokenManager(this);
+
         // Setup drawer layout
         drawerLayout = findViewById(R.id.main);
         ImageView menuIcon = findViewById(R.id.menu_icon);
         menuIcon.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+
+
+        TextView btn_nav_profile = findViewById(R.id.nav_profile_text);
+        TextView nav_home_text = findViewById(R.id.nav_home_text);
+        TextView nav_logout_text = findViewById(R.id.nav_logout_text);
+        TextView nav_settings_text = findViewById(R.id.nav_settings_text);
+        TextView nav_share_text = findViewById(R.id.nav_shared_text);
+        TextView nav_storage_text = findViewById(R.id.nav_storage_text);
+        TextView nav_help_text = findViewById(R.id.nav_help_text);
+
+
+        menuIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.openDrawer(GravityCompat.START);
+            }
+        });
+
+        ImageView closeMenuIcon = findViewById(R.id.close_menu_icon);
+
+        closeMenuIcon.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                }
+            }
+        });
+        nav_home_text.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent it = new Intent(SharedWithMe.this, HomePage.class);
+                startActivity(it);
+            }
+        });
+
+        btn_nav_profile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent it = new Intent(SharedWithMe.this, my_profiile.class);
+                startActivity(it);
+            }
+        });
+
+
+        nav_storage_text.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent it = new Intent(SharedWithMe.this, storage_details.class);
+                startActivity(it);
+            }
+        });
+
+        nav_help_text.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent it = new Intent(SharedWithMe.this, help_report.class);
+                startActivity(it);
+            }
+        });
+
+        nav_logout_text.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                handleLogout();
+            }
+        });
+
+        nav_settings_text.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent it = new Intent(SharedWithMe.this, change_password.class);
+                startActivity(it);
+            }
+        });
+
+
+
+
 
         // Initialize folders list
         foldersListLayout = findViewById(R.id.folderslist);
@@ -200,4 +286,22 @@ public class SharedWithMe extends AppCompatActivity {
 
         popup.show();
     }
+    /**
+     * Xử lý logout
+     */
+    private void handleLogout() {
+        tokenManager.clearToken();
+        navigateToLogin();
+    }
+
+    /**
+     * Chuyển về màn hình login
+     */
+    private void navigateToLogin() {
+        Intent intent = new Intent(SharedWithMe.this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
 }
+
