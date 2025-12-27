@@ -4,7 +4,7 @@
         android:id="@+id/menu_add_media"
         android:title="Add Image/Video" />
     <item
-        android:id="@+id/menu_add_folder"
-        android:title="Create Folder" />
+        android:id="@+id/menu_add_album"
+        android:title="Create Album" />
 
 </menu>

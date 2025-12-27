@@ -54,6 +54,8 @@
             android:layout_weight="1"
             android:text="Cancel"
             android:textColor="#FFFFFF"
+            android:backgroundTint="#567DF4"
+
             android:textSize="16sp"
             android:layout_marginEnd="10dp"/>
 
@@ -63,6 +65,8 @@
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="1"
+            android:backgroundTint="#567DF4"
+
             android:text="Share"
             android:textColor="#FFFFFF"
             android:textSize="16sp"

@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
+import android.hardware.biometrics.PromptContentViewWithMoreOptionsButton;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -144,6 +145,8 @@ public class HomePage extends BaseActivity {
         TextView nav_storage_text = findViewById(R.id.nav_storage_text);
         TextView nav_help_text = findViewById(R.id.nav_help_text);
 
+
+
         addFileButton = findViewById(R.id.add_file_button);
 
         menuIcon.setOnClickListener(new View.OnClickListener() {
@@ -211,6 +214,8 @@ public class HomePage extends BaseActivity {
             }
         });
 
+
+
         // Initialize folders list
         foldersListLayout = findViewById(R.id.folderslist);
         folderItems = new ArrayList<>();
@@ -219,7 +224,7 @@ public class HomePage extends BaseActivity {
         loadAlbumsAndMedia();
 
         // Set the click listener
-        addFileButton.setOnClickListener(v -> showUploadDialog());
+        addFileButton.setOnClickListener(v -> showAddFileMenu(v));
 
     }
 
@@ -470,6 +475,28 @@ public class HomePage extends BaseActivity {
     }
 
     /**
+     * Show options menu for folder item
+     */
+    private void showAddFileMenu(View v) {
+        PopupMenu popup = new PopupMenu(this,v);
+        popup.getMenuInflater().inflate(R.menu.plus_option_menu, popup.getMenu());
+
+        popup.setOnMenuItemClickListener(menuItem -> {
+            int itemId = menuItem.getItemId();
+            if (itemId == R.id.menu_add_media) {
+                showUploadDialog();
+                return true;
+            } else if (itemId == R.id.menu_add_album) {
+                showCreateAlbumDialog();
+                return true;
+            }
+            return false;
+        });
+
+        popup.show();
+    }
+
+    /**
      * Delete media item by ID
      */
     private void deleteMediaItem(int mediaId) {
@@ -684,6 +711,41 @@ public class HomePage extends BaseActivity {
         });
 
         // Show the dialog
+        dialog.show();
+    }
+
+    private void showCreateAlbumDialog(){
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_add_album);
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        EditText etAlbumName = dialog.findViewById(R.id.edit_text_album_name);
+        EditText etAlbumDescription = dialog.findViewById(R.id.edit_text_album_description);
+
+        Button btnCancel = dialog.findViewById(R.id.button_cancel);
+        Button btnCreate = dialog.findViewById(R.id.button_save);
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnCreate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(etAlbumName.getText().toString().trim().isEmpty()){
+                    etAlbumName.setError("Please enter an album name");
+                    return;
+                }
+                if(etAlbumName.getText().toString().trim().isEmpty()){
+                    etAlbumName.setText("");
+                }
+
+                createAlbumRecord(etAlbumName.getText().toString().trim(), etAlbumDescription.getText().toString().trim());
+                dialog.dismiss();
+
+            }
+        });
+
+
+
         dialog.show();
     }
 
@@ -1155,6 +1217,7 @@ public class HomePage extends BaseActivity {
                 nameEditText.setError("Folder name cannot be empty");
                 return;
             }
+
 
              updateAlbumOnServer(album.getId(), newName, newDesc);
 

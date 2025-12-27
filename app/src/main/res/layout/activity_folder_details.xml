@@ -1,153 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<androidx.drawerlayout.widget.DrawerLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/main"
+    android:orientation="vertical"
+    android:background="#F5F9FF"
     tools:context=".FolderDetails">
 
-    <!--    Man hinh chinh-->
+    <!-- ========== Thanh tiêu đề (Header) ========== -->
     <LinearLayout
+        android:id="@+id/header_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:paddingTop="50dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
         >
-        <!--        Header-->
-        <FrameLayout
-            android:id="@+id/header_layout"
-            android:layout_width="match_parent"
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_back"
+            />
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="50dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            >
-            <TextView
-                android:id="@+id/textView5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/gilroy_bold"
-                android:text="Your Cloudy"
-                android:textColor="#22215B"
-                android:textSize="30sp"
-                />
+            android:layout_marginTop="50dp"
+            android:fontFamily="@font/gilroy_bold"
+            android:text="Folder Details"
+            android:textColor="#22215B"
+            android:textSize="30sp"
+            />
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_fourdots"
-                android:layout_gravity="end|center_vertical"
-                android:contentDescription="Open menu"
-                android:id="@+id/menu_icon">
+    </LinearLayout>
 
-            </ImageView>
-        </FrameLayout>
+    <!--Folder nav-->
+    <LinearLayout
+        android:id="@+id/loadnav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        >
 
-        <!--Folder nav-->
+        <TextView
+            android:id="@+id/tv_album_name"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:fontFamily="@font/gilroy_bold"
+            android:text="Album Name"
+            android:textColor="#22215B"
+            android:textSize="18dp" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
         <LinearLayout
-            android:id="@+id/loadnav"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:layout_marginTop="40dp"
-            android:layout_marginBottom="20dp"
-            android:gravity="center"
+
             >
-
-            <TextView
-                android:id="@+id/tv_album_name"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:fontFamily="@font/gilroy_bold"
-                android:text="Album Name"
-                android:textColor="#22215B"
-                android:textSize="18dp" />
-
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-
-                >
-                <ImageView
-                    android:id="@+id/btn_add_media"
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:layout_marginEnd="20dp"
-                    android:src="@drawable/ic_plus"
-                    android:contentDescription="Add media to album"
-                    />
-
-            </LinearLayout>
-
-
-
+            <ImageView
+                android:id="@+id/btn_add_media"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="20dp"
+                android:src="@drawable/ic_plus"
+                android:contentDescription="Add media to album"
+                />
 
         </LinearLayout>
 
-        <!--Album description-->
-        <TextView
-            android:id="@+id/tv_album_description"
+
+
+
+    </LinearLayout>
+
+    <!--Album description-->
+    <TextView
+        android:id="@+id/tv_album_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:layout_marginBottom="20dp"
+        android:fontFamily="@font/gilroy_regular"
+        android:text=""
+        android:textColor="#7B7F9E"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+    <!--        Folders-->
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/folderslist"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:layout_marginBottom="20dp"
-            android:fontFamily="@font/gilroy_regular"
-            android:text=""
-            android:textColor="#7B7F9E"
-            android:textSize="14sp"
-            android:visibility="gone" />
+            android:layout_marginTop="10dp"
+            android:paddingStart="30dp"
+            android:paddingEnd="30dp"
+            app:dividerDrawable="@drawable/divider"
+            app:flexDirection="row"
+            app:flexWrap="wrap"
+            app:justifyContent="space_between"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintWidth_percent="0.9"
+            app:showDivider="middle">
 
-        <!--        Folders-->
+            <!-- Media content will be dynamically loaded from backend -->
 
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        </com.google.android.flexbox.FlexboxLayout>
 
-            <com.google.android.flexbox.FlexboxLayout
-                android:id="@+id/folderslist"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:paddingStart="30dp"
-                android:paddingEnd="30dp"
-                app:dividerDrawable="@drawable/divider"
-                app:flexDirection="row"
-                app:flexWrap="wrap"
-                app:justifyContent="space_between"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintWidth_percent="0.9"
-                app:showDivider="middle">
-
-                <!-- Media content will be dynamically loaded from backend -->
-
-            </com.google.android.flexbox.FlexboxLayout>
-
-        </ScrollView>
+    </ScrollView>
 
 
-    </LinearLayout>
-
-    <!--    Man menu bi khuat-->
-    <LinearLayout
-        android:layout_width="280dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:clickable="true"
-        android:focusable="true"
-        android:orientation="vertical">
-
-        <!-- Nhúng layout menu của bạn vào đây -->
-        <include layout="@layout/nav_menu" />
-
-    </LinearLayout>
-</androidx.drawerlayout.widget.DrawerLayout>
+</LinearLayout>
