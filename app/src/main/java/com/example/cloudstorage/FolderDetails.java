@@ -22,10 +22,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.graphics.Insets;
-import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.bumptech.glide.Glide;
 import com.example.cloudstorage.api.ApiClient;
@@ -61,7 +59,6 @@ public class FolderDetails extends AppCompatActivity {
     private List<Media> mediaList;
     private TextView tvAlbumName;
     private TextView tvAlbumDescription;
-    private DrawerLayout drawerLayout;
     private Uri selectedMediaUri;
     private ImageView imagePreview;
 
@@ -107,10 +104,9 @@ public class FolderDetails extends AppCompatActivity {
             return;
         }
 
-        // Setup drawer layout
-        drawerLayout = findViewById(R.id.main);
-        ImageView menuIcon = findViewById(R.id.menu_icon);
-        menuIcon.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+        // Setup back button
+        ImageView btnBack = findViewById(R.id.btn_back);
+        btnBack.setOnClickListener(v -> finish());
 
         // Initialize views
         tvAlbumName = findViewById(R.id.tv_album_name);
