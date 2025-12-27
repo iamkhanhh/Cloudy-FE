@@ -208,7 +208,12 @@ public class SharedWithMe extends AppCompatActivity {
         LayoutInflater inflater = LayoutInflater.from(this);
 
         for (FolderItem item : folderItems) {
-            View itemView = inflater.inflate(R.layout.item_folder, foldersListLayout, false);
+
+            View itemView = inflater.inflate(R.layout.item_folder,foldersListLayout , false);
+            if (item.isAlbum()) {
+                itemView = inflater.inflate(R.layout.item_folder_shared_album,foldersListLayout , false);
+
+            }
 
             ImageView ivFolderIcon = itemView.findViewById(R.id.iv_folder_icon);
             ImageView ivFolderOptions = itemView.findViewById(R.id.iv_folder_options);
@@ -252,6 +257,9 @@ public class SharedWithMe extends AppCompatActivity {
                 }
             });
 
+
+
+
             // Set click listener for options menu
             ivFolderOptions.setOnClickListener(v -> {
                 showOptionsMenu(v, item);
@@ -267,7 +275,7 @@ public class SharedWithMe extends AppCompatActivity {
      */
     private void showOptionsMenu(View view, FolderItem item) {
         PopupMenu popup = new PopupMenu(this, view);
-        popup.getMenuInflater().inflate(R.menu.menu_media_options, popup.getMenu());
+        popup.getMenuInflater().inflate(R.menu.menu_shared_media_options, popup.getMenu());
 
         popup.setOnMenuItemClickListener(menuItem -> {
             int itemId = menuItem.getItemId();

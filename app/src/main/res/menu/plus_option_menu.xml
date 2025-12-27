@@ -5,6 +5,6 @@
         android:title="Add Image/Video" />
     <item
         android:id="@+id/menu_add_folder"
-        android:title="Add Folder" />
+        android:title="Create Folder" />
 
 </menu>
