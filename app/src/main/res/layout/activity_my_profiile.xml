@@ -111,7 +111,6 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <!-- Dòng thông tin Email (Giữ nguyên) -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -150,7 +149,6 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Đường kẻ phân cách -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
@@ -158,7 +156,6 @@
                     android:layout_marginBottom="16dp"
                     android:background="#EEEEEE"/>
 
-                <!-- THAY ĐỔI: Dòng thông tin Tên (Name) -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -197,7 +194,6 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Đường kẻ phân cách -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
@@ -205,7 +201,6 @@
                     android:layout_marginBottom="16dp"
                     android:background="#EEEEEE"/>
 
-                <!-- THAY ĐỔI: Dòng thông tin Tiểu sử (Bio) -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -531,7 +526,6 @@
         app:layout_constraintStart_toStartOf="@+id/user_info_box"
         app:layout_constraintEnd_toEndOf="@+id/user_info_box">
 
-        <!-- Mục Dung lượng -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -554,7 +548,6 @@
                 android:textSize="14sp"/>
         </LinearLayout>
 
-        <!-- Mục Số lượng tệp -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -577,7 +570,6 @@
                 android:textSize="14sp"/>
         </LinearLayout>
 
-        <!-- Mục Số lượng thư mục -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"

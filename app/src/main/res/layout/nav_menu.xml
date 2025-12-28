@@ -59,7 +59,6 @@
 
 <!--        </FrameLayout>-->
 
-    <!-- 1. Thay FrameLayout bằng ConstraintLayout -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/user_info"
             android:layout_width="match_parent"
@@ -69,7 +68,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- LinearLayout chứa thông tin người dùng -->
         <LinearLayout
             android:id="@+id/user_profile_container"
             android:layout_width="wrap_content"
@@ -78,7 +76,6 @@
             android:padding="20dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="MissingConstraints"> <!-- Bỏ qua cảnh báo vì nó được ràng buộc bởi cha -->
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:layout_width="40dp"
@@ -93,10 +90,8 @@
                 android:gravity="center_vertical"
                 android:fontFamily="@font/gilroy_bold"
                 android:text="UserName"
-                android:textSize="14sp" /> <!-- Sửa thành sp cho văn bản -->
         </LinearLayout>
 
-        <!-- ImageView (icon đóng) với các ràng buộc -->
         <ImageView
             android:id="@+id/close_menu_icon"
             android:layout_width="24dp"
@@ -130,7 +125,6 @@
             android:paddingTop="8dp"
             android:paddingBottom="8dp">
 
-            <!-- Thay thế các <item> bằng các TextView có thể bấm được -->
             <TextView
                 android:id="@+id/nav_home_text"
                 style="@style/NavMenuItem"
@@ -157,7 +151,6 @@
                 style="@style/NavMenuItem"
                 android:text="Change Password" />
 
-            <!-- Đường kẻ phân cách -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"

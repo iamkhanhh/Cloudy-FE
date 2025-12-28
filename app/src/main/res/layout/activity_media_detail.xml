@@ -52,7 +52,6 @@
 
         </LinearLayout>
 
-<!--        MEDIA CONTAINER - Chứa ImageView hoặc VideoView -->
         <FrameLayout
             android:id="@+id/media_container"
             android:layout_width="0dp"
@@ -64,7 +63,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5">
 
-            <!--        IMAGE VIEW cho ảnh -->
             <ImageView
                 android:id="@+id/iv_media"
                 android:layout_width="match_parent"
@@ -73,14 +71,12 @@
                 android:visibility="gone"
                 android:src="@drawable/default_media"/>
 
-            <!--        VIDEO VIEW cho video -->
             <VideoView
                 android:id="@+id/vv_media"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:visibility="gone"/>
 
-            <!--        Progress bar khi loading -->
             <ProgressBar
                 android:id="@+id/progress_bar"
                 android:layout_width="wrap_content"
@@ -89,7 +85,6 @@
                 android:visibility="visible"/>
 
         </FrameLayout>
-<!--        TEXT VIEW HIỂN THỊ CAPTION, FILE SIZE, CREATED AT-->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

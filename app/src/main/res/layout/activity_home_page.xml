@@ -157,7 +157,6 @@
 
     </LinearLayout>
 
-<!--    Man menu bi khuat-->
     <LinearLayout
             android:layout_width="280dp"
             android:layout_height="match_parent"
@@ -166,7 +165,6 @@
             android:focusable="true"
             android:orientation="vertical">
 
-            <!-- Nhúng layout menu của bạn vào đây -->
             <include layout="@layout/nav_menu" />
 
         </LinearLayout>

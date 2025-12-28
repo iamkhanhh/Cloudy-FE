@@ -8,7 +8,6 @@
     android:background="#F5F9FF"
     tools:context=".storage_details">
 
-    <!-- ========== Thanh tiêu đề (Header) ========== -->
     <LinearLayout
         android:id="@+id/header_layout"
         android:layout_width="match_parent"
@@ -46,7 +45,6 @@
 
     </LinearLayout>
 
-    <!-- ========== Biểu đồ dung lượng tổng quan ========== -->
     <FrameLayout
         android:id="@+id/chart_container"
         android:layout_width="wrap_content"
@@ -94,7 +92,6 @@
 
     </FrameLayout>
 
-    <!-- ========== Danh sách phân loại dung lượng ========== -->
     <LinearLayout
         android:id="@+id/storage_breakdown_list"
         android:layout_width="0dp"
@@ -108,11 +105,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintWidth_percent="0.95">
 
-        <!-- Mục Images -->
         <include layout="@layout/component_storage_item_layout"
             android:id="@+id/item_images"/>
 
-        <!-- Mục Videos -->
         <include layout="@layout/component_storage_item_layout"
             android:id="@+id/item_videos"/>
 

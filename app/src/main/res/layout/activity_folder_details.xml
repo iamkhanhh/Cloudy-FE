@@ -10,7 +10,6 @@
     android:background="#F5F9FF"
     tools:context=".FolderDetails">
 
-    <!-- ========== Thanh tiêu đề (Header) ========== -->
     <LinearLayout
         android:id="@+id/header_layout"
         android:layout_width="match_parent"

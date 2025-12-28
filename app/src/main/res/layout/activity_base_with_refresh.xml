@@ -7,10 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".BaseActivity">
 
-    <!--
-        Đây là một FrameLayout.
-        Nó sẽ hoạt động như một "container" để chứa layout của các Activity con.
-    -->
     <FrameLayout
         android:id="@+id/base_content_container"
         android:layout_width="match_parent"

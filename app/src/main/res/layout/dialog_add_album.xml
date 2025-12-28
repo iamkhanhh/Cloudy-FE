@@ -42,7 +42,6 @@
             android:gravity="top"
             android:lines="3"/>
     </com.google.android.material.textfield.TextInputLayout>
-    <!-- Các nút Save, Cancel tương tự dialog_edit_media -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
