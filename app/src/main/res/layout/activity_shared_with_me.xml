@@ -1,49 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.drawerlayout.widget.DrawerLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:id="@+id/main"
     tools:context=".SharedWithMe">
 
+
+    <LinearLayout
+        android:id="@+id/header_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:orientation="vertical"
+        android:paddingTop="50dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        >
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_back"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.1"
+            />
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:fontFamily="@font/gilroy_bold"
+            android:text="Shared with me"
+            android:textColor="#22215B"
+            android:textSize="30sp"
+            />
+
+
+    </LinearLayout>
     <!--    Man hinh chinh-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         >
-        <!--        Header-->
-        <FrameLayout
-            android:id="@+id/header_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="50dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            >
-            <TextView
-                android:id="@+id/textView5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/gilroy_bold"
-                android:text="Your Cloudy"
-                android:textColor="#22215B"
-                android:textSize="30sp"
-                />
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_fourdots"
-                android:layout_gravity="end|center_vertical"
-                android:contentDescription="Open menu"
-                android:id="@+id/menu_icon">
-
-            </ImageView>
-        </FrameLayout>
+        
         <!--search bar-->
         <LinearLayout
             android:layout_width="match_parent"
@@ -139,18 +149,5 @@
 
 
     </LinearLayout>
-
-    <!--    Man menu bi khuat-->
-    <LinearLayout
-        android:layout_width="280dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:clickable="true"
-        android:focusable="true"
-        android:orientation="vertical">
-
-        <!-- Nhúng layout menu của bạn vào đây -->
-        <include layout="@layout/nav_menu" />
-
-    </LinearLayout>
-</androidx.drawerlayout.widget.DrawerLayout>
+    
+</LinearLayout>

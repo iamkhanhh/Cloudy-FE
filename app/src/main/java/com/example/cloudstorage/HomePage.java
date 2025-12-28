@@ -13,6 +13,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.OpenableColumns;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -72,8 +74,9 @@ import com.google.android.material.textfield.TextInputEditText;
 public class HomePage extends BaseActivity {
     private static final String TAG = "HomePage";
 
-    private TokenManager tokenManager;
+    private EditText searchEditText;
     private FlexboxLayout foldersListLayout;
+    private TokenManager tokenManager;
     private List<FolderItem> folderItems;
 
     private ImageView addFileButton;
@@ -148,6 +151,9 @@ public class HomePage extends BaseActivity {
 
 
         addFileButton = findViewById(R.id.add_file_button);
+
+        searchEditText = findViewById(R.id.search_edit_text);
+        foldersListLayout = findViewById(R.id.folderslist);
 
         menuIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -226,6 +232,8 @@ public class HomePage extends BaseActivity {
         // Set the click listener
         addFileButton.setOnClickListener(v -> showAddFileMenu(v));
 
+        addSearchFunctionality();
+
     }
 
     @Override
@@ -272,7 +280,7 @@ public class HomePage extends BaseActivity {
                         }
 
                         // Update UI
-                        displayFolderItems();
+                        displayFolderItems(folderItems);
                     } else {
                         Log.e(TAG, "Failed to load albums: " + apiResponse.getMessageOrDefault("Unknown error"));
                     }
@@ -309,7 +317,7 @@ public class HomePage extends BaseActivity {
                         }
 
                         // Update UI
-                        displayFolderItems();
+                        displayFolderItems(folderItems);
                     } else {
                         Log.e(TAG, "Failed to load media: " + apiResponse.getMessageOrDefault("Unknown error"));
                     }
@@ -329,14 +337,16 @@ public class HomePage extends BaseActivity {
     /**
      * Display folder items (albums and media) in FlexboxLayout
      */
-    private void displayFolderItems() {
+    private void displayFolderItems(List<FolderItem> itemsToDisplay) {
         // Clear existing views
         foldersListLayout.removeAllViews();
+
+        if (itemsToDisplay == null) return;
 
         // Create view for each folder item
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);;
 
-        for (FolderItem item : folderItems) {
+        for (FolderItem item : itemsToDisplay) {
             View itemView = inflater.inflate(R.layout.item_folder, foldersListLayout, false);
 
             ImageView ivFolderIcon = itemView.findViewById(R.id.iv_folder_icon);
@@ -1335,6 +1345,57 @@ public class HomePage extends BaseActivity {
             Toast.makeText(this, "Unable to start download.", Toast.LENGTH_SHORT).show();
         }
     }
+
+
+
+    // Đặt các phương thức này vào trong lớp HomePage của bạn
+
+    private void addSearchFunctionality() {
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // Không cần làm gì ở đây
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Khi người dùng nhập, gọi hàm lọc
+                filter(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // Không cần làm gì ở đây
+            }
+        });
+    }
+
+    /**
+     * Lọc danh sách folderItems dựa trên truy vấn và cập nhật UI.
+     * @param query Chuỗi tìm kiếm từ người dùng.
+     */
+    private void filter(String query) {
+        // Tạo một danh sách mới để chứa các mục đã lọc
+        List<FolderItem> filteredList = new ArrayList<>();
+
+        // Nếu chuỗi tìm kiếm rỗng, hiển thị toàn bộ danh sách
+        if (query.isEmpty()) {
+            filteredList.addAll(folderItems);
+        } else {
+            // Lặp qua danh sách gốc
+            for (FolderItem item : folderItems) {
+                // So sánh tên của mục (không phân biệt chữ hoa/thường)
+                if (item.getName().toLowerCase().contains(query.toLowerCase())) {
+                    // Nếu khớp, thêm vào danh sách đã lọc
+                    filteredList.add(item);
+                }
+            }
+        }
+
+        // Gọi phương thức displayFolderItems đã được sửa đổi để cập nhật giao diện
+        displayFolderItems(filteredList);
+    }
+
 
 
     /**
