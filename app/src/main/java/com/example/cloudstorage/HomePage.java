@@ -612,7 +612,7 @@ public class HomePage extends BaseActivity {
      * Call API to share resource with user
      */
     private void shareWithUser(FolderItem item, String receiverEmail) {
-        String resourceType = item.isMedia() ? "MEDIA" : "ALBUM";
+        String resourceType = item.isMedia() ? "MEDIA" : "ALBUMS";
         CreateShareRequest request = new CreateShareRequest(
                 resourceType,
                 item.getId(),
