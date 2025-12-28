@@ -39,16 +39,13 @@ public class my_profiile extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_my_profiile);
 
-        // Khởi tạo TokenManager
         tokenManager = new TokenManager(this);
 
-        // Kiểm tra đăng nhập
         if (!tokenManager.isLoggedIn()) {
             navigateToLogin();
             return;
         }
 
-        // Tìm views
         userEmailView = findViewById(R.id.user_email_view);
         userNameView = findViewById(R.id.user_name_view_detail);
         userBioView = findViewById(R.id.user_bio_view);
@@ -65,7 +62,6 @@ public class my_profiile extends AppCompatActivity {
             }
         });
 
-        // Load user profile từ API
         loadUserProfile();
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -75,11 +71,7 @@ public class my_profiile extends AppCompatActivity {
         });
     }
 
-    /**
-     * Gọi API /auth/me để lấy thông tin user
-     */
     private void loadUserProfile() {
-        // Authorization header sẽ tự động được thêm bởi AuthInterceptor
         ApiClient.getApiService(this).getProfile().enqueue(new Callback<ApiResponse<User>>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponse<User>> call, @NonNull Response<ApiResponse<User>> response) {
@@ -91,13 +83,12 @@ public class my_profiile extends AppCompatActivity {
                         User user = apiResponse.getData();
                         displayUserInfo(user);
                     } else {
-                        Toast.makeText(my_profiile.this, "Không có dữ liệu user", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(my_profiile.this, "No user data", Toast.LENGTH_SHORT).show();
                     }
 
                 } else {
-                    Toast.makeText(my_profiile.this, "Không thể tải thông tin user", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(my_profiile.this, "Cannot load user information", Toast.LENGTH_SHORT).show();
 
-                    // Nếu lỗi 401 (Unauthorized), chuyển về login
                     if (response.code() == 401) {
                         tokenManager.clearToken();
                         navigateToLogin();
@@ -107,17 +98,13 @@ public class my_profiile extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Call<ApiResponse<User>> call, @NonNull Throwable t) {
-                Toast.makeText(my_profiile.this, "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(my_profiile.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 t.printStackTrace();
             }
         });
     }
 
-    /**
-     * Hiển thị thông tin user lên UI
-     */
     private void displayUserInfo(User user) {
-        // Hiển thị thông tin cơ bản
         if (userEmailView != null) {
             userEmailView.setText(user.getEmail() != null ? user.getEmail() : "N/A");
         }
@@ -125,42 +112,32 @@ public class my_profiile extends AppCompatActivity {
             userNameView.setText(user.getName() != null ? user.getName() : "N/A");
         }
         if (userBioView != null) {
-            userBioView.setText(user.getBio() != null && !user.getBio().isEmpty() ? user.getBio() : "Chưa có tiểu sử");
+            userBioView.setText(user.getBio() != null && !user.getBio().isEmpty() ? user.getBio() : "No bio available");
         }
 
-        // Hiển thị storage info
         if (storageUsedView != null) {
-            // BE đã trả về total ở dạng GB (double)
             double totalGB = user.getTotal();
             String storageText = String.format("%.2f GB", totalGB);
             storageUsedView.setText(storageText);
         }
 
         if (filesCountView != null) {
-            // Hiển thị số lượng files với định dạng số
             int mediaCount = user.getMediaCount();
             String filesText = formatNumber(mediaCount);
             filesCountView.setText(filesText);
         }
 
         if (foldersCountView != null) {
-            // Hiển thị số lượng folders với định dạng số
             int albumsCount = user.getAlbumsCount();
             String foldersText = formatNumber(albumsCount);
             foldersCountView.setText(foldersText);
         }
     }
 
-    /**
-     * Format số với dấu phẩy (1,234)
-     */
     private String formatNumber(int number) {
         return String.format("%,d", number);
     }
 
-    /**
-     * Chuyển về màn hình login
-     */
     private void navigateToLogin() {
         Intent intent = new Intent(my_profiile.this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

@@ -39,17 +39,14 @@ public class help_report extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_help_report);
 
-        // Khởi tạo TokenManager
         tokenManager = new TokenManager(this);
 
-        // Kiểm tra đăng nhập
         if (!tokenManager.isLoggedIn()) {
             navigateToLogin();
             return;
         }
 
-        // Tìm views
-        titleInput = findViewById(R.id.tile); // Lưu ý: ID trong layout là "tile" không phải "title"
+        titleInput = findViewById(R.id.tile);
         detailsInput = findViewById(R.id.details);
         submitButton = findViewById(R.id.btn_submit);
         ImageView btn_back = findViewById(R.id.btn_back);
@@ -77,39 +74,32 @@ public class help_report extends AppCompatActivity {
         });
     }
 
-    /**
-     * Xử lý gửi report
-     */
     private void handleSubmitReport() {
         String title = titleInput.getText().toString().trim();
         String details = detailsInput.getText().toString().trim();
 
-        // Validate input
         if (title.isEmpty()) {
-            titleInput.setError("Vui lòng nhập tiêu đề");
+            titleInput.setError("Please enter title");
             titleInput.requestFocus();
             return;
         }
 
         if (details.isEmpty()) {
-            detailsInput.setError("Vui lòng mô tả chi tiết vấn đề");
+            detailsInput.setError("Please describe the issue");
             detailsInput.requestFocus();
             return;
         }
 
         if (details.length() < 10) {
-            detailsInput.setError("Vui lòng mô tả chi tiết hơn (tối thiểu 10 ký tự)");
+            detailsInput.setError("Please provide more details (minimum 10 characters)");
             detailsInput.requestFocus();
             return;
         }
 
-        // Disable button và hiển thị loading
         setInputsEnabled(false);
 
-        // Tạo request
         ReportRequest request = new ReportRequest(title, details);
 
-        // Gọi API
         ApiClient.getApiService(this).submitReport(request)
                 .enqueue(new Callback<ApiResponse<Void>>() {
                     @Override
@@ -120,24 +110,22 @@ public class help_report extends AppCompatActivity {
                             ApiResponse<Void> apiResponse = response.body();
 
                             Toast.makeText(help_report.this,
-                                    apiResponse.getMessageOrDefault("Báo cáo đã được gửi thành công!"),
+                                    apiResponse.getMessageOrDefault("Report submitted successfully!"),
                                     Toast.LENGTH_LONG).show();
 
-                            // Clear inputs
                             titleInput.setText("");
                             detailsInput.setText("");
 
-                            // Quay lại màn hình trước
                             finish();
 
                         } else {
-                            String errorMsg = "Gửi báo cáo thất bại";
+                            String errorMsg = "Failed to submit report";
 
                             try {
                                 if (response.errorBody() != null) {
                                     String errorJson = response.errorBody().string();
                                     JSONObject obj = new JSONObject(errorJson);
-                                    errorMsg = obj.optString("message", "Gửi báo cáo thất bại");
+                                    errorMsg = obj.optString("message", "Failed to submit report");
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -145,7 +133,6 @@ public class help_report extends AppCompatActivity {
 
                             Toast.makeText(help_report.this, errorMsg, Toast.LENGTH_LONG).show();
 
-                            // Nếu lỗi 401 (Unauthorized), chuyển về login
                             if (response.code() == 401) {
                                 tokenManager.clearToken();
                                 navigateToLogin();
@@ -157,7 +144,7 @@ public class help_report extends AppCompatActivity {
                     public void onFailure(@NonNull Call<ApiResponse<Void>> call, @NonNull Throwable t) {
                         setInputsEnabled(true);
 
-                        String errorMsg = "Lỗi kết nối: " + t.getMessage();
+                        String errorMsg = "Connection error: " + t.getMessage();
                         Toast.makeText(help_report.this, errorMsg, Toast.LENGTH_LONG).show();
 
                         t.printStackTrace();
@@ -165,25 +152,18 @@ public class help_report extends AppCompatActivity {
                 });
     }
 
-    /**
-     * Enable/disable inputs và button
-     */
     private void setInputsEnabled(boolean enabled) {
         titleInput.setEnabled(enabled);
         detailsInput.setEnabled(enabled);
         submitButton.setEnabled(enabled);
 
-        // Hiển thị loading text trên button
         if (enabled) {
             submitButton.setText("Submit");
         } else {
-            submitButton.setText("Đang gửi...");
+            submitButton.setText("Submitting...");
         }
     }
 
-    /**
-     * Chuyển về màn hình login
-     */
     private void navigateToLogin() {
         Intent intent = new Intent(help_report.this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

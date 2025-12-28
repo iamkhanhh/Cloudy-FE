@@ -15,7 +15,6 @@ public class User {
     private int fileCount;
     private int folderCount;
 
-    // Các trường mới từ API /auth/me
     @SerializedName("media_count")
     private int mediaCount;
 
@@ -23,7 +22,7 @@ public class User {
     private int albumsCount;
 
     @SerializedName("total")
-    private double total; // Dung lượng tổng (GB)
+    private double total;
 
     public String getId() {
         return id;

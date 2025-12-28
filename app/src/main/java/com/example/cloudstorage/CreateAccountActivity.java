@@ -44,7 +44,6 @@ public class CreateAccountActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_create_account);
 
-        // Khởi tạo views
         firstNameInput = findViewById(R.id.first_name_input);
         lastNameInput = findViewById(R.id.last_name_input);
         emailInput = findViewById(R.id.email_input);
@@ -81,11 +80,7 @@ public class CreateAccountActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Xử lý đăng ký tài khoản
-     */
     private void handleRegister() {
-        // Lấy giá trị từ input fields
         String firstName = firstNameInput.getText().toString().trim();
         String lastName = lastNameInput.getText().toString().trim();
         String email = emailInput.getText().toString().trim();
@@ -100,10 +95,8 @@ public class CreateAccountActivity extends AppCompatActivity {
             return;
         }
 
-        // Disable button và hiển thị loading
         setInputsEnabled(false);
 
-        // Tạo request
         RegisterRequest request = new RegisterRequest(email, password, firstName, lastName);
 
         // Set optional fields if not empty
@@ -117,7 +110,6 @@ public class CreateAccountActivity extends AppCompatActivity {
             request.setBio(bio);
         }
 
-        // Gọi API register
         ApiClient.getApiService(this).register(request)
                 .enqueue(new Callback<ApiResponse<RegisterResponse>>() {
                     @Override
@@ -130,32 +122,28 @@ public class CreateAccountActivity extends AppCompatActivity {
                             if (apiResponse.getData() != null) {
                                 RegisterResponse registerResponse = apiResponse.getData();
 
-                                // Hiển thị thông báo thành công
                                 Toast.makeText(CreateAccountActivity.this,
-                                        apiResponse.getMessageOrDefault("Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản."),
+                                        apiResponse.getMessageOrDefault("Registration successful! Please check your email to verify your account."),
                                         Toast.LENGTH_LONG).show();
 
-                                // Chuyển đến trang xác thực với userId và email
                                 Intent intent = new Intent(CreateAccountActivity.this, VerificationPage.class);
                                 intent.putExtra("userId", registerResponse.getId());
                                 intent.putExtra("email", registerResponse.getEmail());
                                 startActivity(intent);
 
-                                // Đóng activity hiện tại
                                 finish();
                             } else {
-                                Toast.makeText(CreateAccountActivity.this, "Không nhận được thông tin từ server", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(CreateAccountActivity.this, "No response from server", Toast.LENGTH_SHORT).show();
                             }
 
                         } else {
-                            // Xử lý lỗi
-                            String errorMsg = "Đăng ký thất bại";
+                            String errorMsg = "Registration failed";
 
                             try {
                                 if (response.errorBody() != null) {
                                     String errorJson = response.errorBody().string();
                                     JSONObject obj = new JSONObject(errorJson);
-                                    errorMsg = obj.optString("message", "Đăng ký thất bại");
+                                    errorMsg = obj.optString("message", "Registration failed");
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -169,7 +157,7 @@ public class CreateAccountActivity extends AppCompatActivity {
                     public void onFailure(@NonNull Call<ApiResponse<RegisterResponse>> call, @NonNull Throwable t) {
                         setInputsEnabled(true);
 
-                        String errorMsg = "Lỗi kết nối: " + t.getMessage();
+                        String errorMsg = "Connection error: " + t.getMessage();
                         Toast.makeText(CreateAccountActivity.this, errorMsg, Toast.LENGTH_LONG).show();
 
                         t.printStackTrace();
@@ -177,59 +165,51 @@ public class CreateAccountActivity extends AppCompatActivity {
                 });
     }
 
-    /**
-     * Validate tất cả input fields
-     */
     private boolean validateInputs(String firstName, String lastName, String email, String password, String confirmPassword) {
-        // Validate first name
         if (firstName.isEmpty()) {
-            firstNameInput.setError("Vui lòng nhập tên");
+            firstNameInput.setError("Please enter first name");
             firstNameInput.requestFocus();
             return false;
         }
 
-        // Validate last name
         if (lastName.isEmpty()) {
-            lastNameInput.setError("Vui lòng nhập họ");
+            lastNameInput.setError("Please enter last name");
             lastNameInput.requestFocus();
             return false;
         }
 
-        // Validate email
         if (email.isEmpty()) {
-            emailInput.setError("Vui lòng nhập email");
+            emailInput.setError("Please enter email");
             emailInput.requestFocus();
             return false;
         }
 
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailInput.setError("Email không hợp lệ");
+            emailInput.setError("Invalid email");
             emailInput.requestFocus();
             return false;
         }
 
-        // Validate password
         if (password.isEmpty()) {
-            passwordInput.setError("Vui lòng nhập mật khẩu");
+            passwordInput.setError("Please enter password");
             passwordInput.requestFocus();
             return false;
         }
 
         if (!isValidPassword(password)) {
-            passwordInput.setError("Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ cái, số và ký tự đặc biệt (@$!%*#?&)");
+            passwordInput.setError("Password must be at least 8 characters with letters, numbers and special characters (@$!%*#?&)");
             passwordInput.requestFocus();
             return false;
         }
 
-        // Validate confirm password
         if (confirmPassword.isEmpty()) {
-            confirmPasswordInput.setError("Vui lòng xác nhận mật khẩu");
+            confirmPasswordInput.setError("Please confirm password");
             confirmPasswordInput.requestFocus();
             return false;
         }
 
         if (!password.equals(confirmPassword)) {
-            confirmPasswordInput.setError("Mật khẩu xác nhận không khớp");
+            confirmPasswordInput.setError("Passwords do not match");
             confirmPasswordInput.requestFocus();
             return false;
         }
@@ -237,18 +217,11 @@ public class CreateAccountActivity extends AppCompatActivity {
         return true;
     }
 
-    /**
-     * Kiểm tra mật khẩu có đáp ứng yêu cầu không
-     * Ít nhất 8 ký tự, có chữ cái, số và ký tự đặc biệt
-     */
     private boolean isValidPassword(String password) {
         String pattern = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$";
         return password.matches(pattern);
     }
 
-    /**
-     * Enable/disable inputs và button
-     */
     private void setInputsEnabled(boolean enabled) {
         firstNameInput.setEnabled(enabled);
         lastNameInput.setEnabled(enabled);
@@ -260,11 +233,10 @@ public class CreateAccountActivity extends AppCompatActivity {
         confirmPasswordInput.setEnabled(enabled);
         signUpButton.setEnabled(enabled);
 
-        // Hiển thị loading text trên button
         if (enabled) {
             signUpButton.setText("Sign Up");
         } else {
-            signUpButton.setText("Đang tạo tài khoản...");
+            signUpButton.setText("Creating account...");
         }
     }
 }

@@ -37,7 +37,6 @@ public class VerificationPage extends AppCompatActivity {
     private boolean canResend = false;
     private final int resendDelay = 30000;
 
-    // Nhận userId và email từ Intent
     private int userId;
     private String userEmail;
 
@@ -47,12 +46,11 @@ public class VerificationPage extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_verification_page);
 
-        // Nhận userId và email từ Intent (từ màn hình Register)
         userId = getIntent().getIntExtra("userId", -1);
         userEmail = getIntent().getStringExtra("email");
 
         if (userId == -1 || userEmail == null || userEmail.isEmpty()) {
-            Toast.makeText(this, "Thông tin không hợp lệ. Vui lòng đăng ký lại.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Invalid information. Please register again.", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
@@ -108,32 +106,25 @@ public class VerificationPage extends AppCompatActivity {
         }, resendDelay);
     }
 
-    /**
-     * Xử lý xác thực OTP
-     */
     private void handleVerifyOtp() {
         String code = codeEditText.getText().toString().trim();
 
-        // Validate input
         if (code.isEmpty()) {
-            errorTextView.setText("Vui lòng nhập mã xác thực");
+            errorTextView.setText("Please enter verification code");
             errorTextView.setVisibility(View.VISIBLE);
             return;
         }
 
         if (code.length() < 6) {
-            errorTextView.setText("Mã xác thực không đúng định dạng");
+            errorTextView.setText("Verification code format is invalid");
             errorTextView.setVisibility(View.VISIBLE);
             return;
         }
 
-        // Hiển thị loading
         showVerifyLoading(true);
 
-        // Tạo request
         VerifyAccountRequest request = new VerifyAccountRequest(code);
 
-        // Gọi API
         ApiClient.getApiService(this).activateAccount(userId, request)
                 .enqueue(new Callback<ApiResponse<Void>>() {
                     @Override
@@ -143,17 +134,14 @@ public class VerificationPage extends AppCompatActivity {
                         if (response.isSuccessful() && response.body() != null) {
                             ApiResponse<Void> apiResponse = response.body();
 
-                            // Xác thực thành công
                             Toast.makeText(VerificationPage.this,
-                                    apiResponse.getMessageOrDefault("Xác thực thành công!"),
+                                    apiResponse.getMessageOrDefault("Verification successful!"),
                                     Toast.LENGTH_SHORT).show();
 
-                            // Chuyển về màn hình login
                             navigateToLogin();
 
                         } else {
-                            // Xác thực thất bại
-                            String errorMsg = "Mã xác thực không đúng hoặc đã hết hạn";
+                            String errorMsg = "Verification code is incorrect or expired";
 
                             try {
                                 if (response.errorBody() != null) {
@@ -172,7 +160,7 @@ public class VerificationPage extends AppCompatActivity {
                     public void onFailure(@NonNull Call<ApiResponse<Void>> call, @NonNull Throwable t) {
                         showVerifyLoading(false);
 
-                        String errorMsg = "Lỗi kết nối: " + t.getMessage();
+                        String errorMsg = "Connection error: " + t.getMessage();
                         errorTextView.setText(errorMsg);
                         errorTextView.setVisibility(View.VISIBLE);
 
@@ -181,17 +169,11 @@ public class VerificationPage extends AppCompatActivity {
                 });
     }
 
-    /**
-     * Xử lý gửi lại OTP
-     */
     private void handleResendOtp() {
-        // Hiển thị loading
         showResendLoading(true);
 
-        // Tạo request
         ResendOtpRequest request = new ResendOtpRequest(userEmail);
 
-        // Gọi API
         ApiClient.getApiService(this).resendOtp(request)
                 .enqueue(new Callback<ApiResponse<Void>>() {
                     @Override
@@ -202,16 +184,15 @@ public class VerificationPage extends AppCompatActivity {
                             ApiResponse<Void> apiResponse = response.body();
 
                             Toast.makeText(VerificationPage.this,
-                                    apiResponse.getMessageOrDefault("Mã OTP mới đã được gửi!"),
+                                    apiResponse.getMessageOrDefault("New OTP has been sent!"),
                                     Toast.LENGTH_SHORT).show();
 
-                            // Reset timer
                             canResend = false;
                             resendButton.setEnabled(false);
                             startResendTimer();
 
                         } else {
-                            String errorMsg = "Không thể gửi lại mã OTP";
+                            String errorMsg = "Cannot resend OTP";
 
                             try {
                                 if (response.errorBody() != null) {
@@ -223,7 +204,6 @@ public class VerificationPage extends AppCompatActivity {
 
                             Toast.makeText(VerificationPage.this, errorMsg, Toast.LENGTH_LONG).show();
 
-                            // Vẫn cho phép resend lại nếu thất bại
                             canResend = true;
                             resendButton.setEnabled(true);
                         }
@@ -233,10 +213,9 @@ public class VerificationPage extends AppCompatActivity {
                     public void onFailure(@NonNull Call<ApiResponse<Void>> call, @NonNull Throwable t) {
                         showResendLoading(false);
 
-                        String errorMsg = "Lỗi kết nối: " + t.getMessage();
+                        String errorMsg = "Connection error: " + t.getMessage();
                         Toast.makeText(VerificationPage.this, errorMsg, Toast.LENGTH_LONG).show();
 
-                        // Vẫn cho phép resend lại nếu thất bại
                         canResend = true;
                         resendButton.setEnabled(true);
 
@@ -245,34 +224,25 @@ public class VerificationPage extends AppCompatActivity {
                 });
     }
 
-    /**
-     * Hiển thị/ẩn loading cho verify button
-     */
     private void showVerifyLoading(boolean isLoading) {
         if (isLoading) {
             verifyButton.setEnabled(false);
-            verifyButton.setText("Đang xác thực...");
+            verifyButton.setText("Verifying...");
         } else {
             verifyButton.setEnabled(true);
             verifyButton.setText("Continue");
         }
     }
 
-    /**
-     * Hiển thị/ẩn loading cho resend button
-     */
     private void showResendLoading(boolean isLoading) {
         if (isLoading) {
             resendButton.setEnabled(false);
-            resendButton.setText("Đang gửi...");
+            resendButton.setText("Sending...");
         } else {
             resendButton.setText("Resend");
         }
     }
 
-    /**
-     * Chuyển về màn hình login
-     */
     private void navigateToLogin() {
         Intent intent = new Intent(VerificationPage.this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

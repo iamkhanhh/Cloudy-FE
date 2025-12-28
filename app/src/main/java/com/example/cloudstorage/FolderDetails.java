@@ -68,22 +68,18 @@ public class FolderDetails extends AppCompatActivity {
             if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                 selectedMediaUri = result.getData().getData();
                 if (imagePreview != null && selectedMediaUri != null) {
-                    // Kiểm tra loại MIME của file được chọn
                     String mimeType = getContentResolver().getType(selectedMediaUri);
 
                     if (mimeType != null && mimeType.startsWith("video")) {
-                        // Nếu là video, hiển thị frame đầu tiên làm thumbnail
-                        // Glide có thể làm điều này một cách tự động
                         Glide.with(this)
                                 .load(selectedMediaUri)
-                                .placeholder(R.drawable.ic_launcher_background) // Ảnh giữ chỗ
-                                .error(R.drawable.ic_launcher_foreground) // Ảnh lỗi (thay bằng icon video)
+                                .placeholder(R.drawable.ic_launcher_background)
+                                .error(R.drawable.ic_launcher_foreground)
                                 .into(imagePreview);
                     } else {
-                        // Nếu là ảnh (hoặc không xác định được), hiển thị như bình thường
                         Glide.with(this)
                                 .load(selectedMediaUri)
-                                .placeholder(R.drawable.ic_launcher_background) // Ảnh giữ chỗ
+                                .placeholder(R.drawable.ic_launcher_background)
                                 .into(imagePreview);
                     }
                 }
@@ -417,29 +413,25 @@ public class FolderDetails extends AppCompatActivity {
 
         if (dialog.getWindow() != null) {
             dialog.getWindow().setLayout(
-                    (int) (getResources().getDisplayMetrics().widthPixels * 0.90), // Chiều rộng 90% màn hình
-                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT // Chiều cao tự động
+                    (int) (getResources().getDisplayMetrics().widthPixels * 0.90),
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
             );
         }
 
-        // Get references to views in the dialog
         imagePreview = dialog.findViewById(R.id.image_preview);
         Button selectImageButton = dialog.findViewById(R.id.button_select_image);
         EditText captionEditText = dialog.findViewById(R.id.edit_text_caption);
         Button cancelButton = dialog.findViewById(R.id.button_cancel);
         Button uploadButton = dialog.findViewById(R.id.button_upload);
 
-        // Set click listener for the "Select Image" button
         selectImageButton.setOnClickListener(v -> {
-            // Tạo một Intent để cho phép chọn cả ảnh và video
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.setType("image/*, video/*"); // Chỉ định cả hai loại MIME
+            intent.setType("image/*, video/*");
 
             intent.setType("*/*");
             String[] mimeTypes = {"image/*", "video/*"};
             intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
 
-            // Mở trình chọn file
             imagePickerLauncher.launch(intent);
         });
 
