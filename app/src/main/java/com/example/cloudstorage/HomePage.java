@@ -1279,61 +1279,41 @@ public class HomePage extends BaseActivity {
         }
     }
 
-
-
-    // Đặt các phương thức này vào trong lớp HomePage của bạn
-
     private void addSearchFunctionality() {
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // Không cần làm gì ở đây
+
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Khi người dùng nhập, gọi hàm lọc
+
                 filter(s.toString());
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-                // Không cần làm gì ở đây
             }
         });
     }
 
-    /**
-     * Lọc danh sách folderItems dựa trên truy vấn và cập nhật UI.
-     * @param query Chuỗi tìm kiếm từ người dùng.
-     */
     private void filter(String query) {
-        // Tạo một danh sách mới để chứa các mục đã lọc
         List<FolderItem> filteredList = new ArrayList<>();
 
-        // Nếu chuỗi tìm kiếm rỗng, hiển thị toàn bộ danh sách
         if (query.isEmpty()) {
             filteredList.addAll(folderItems);
         } else {
-            // Lặp qua danh sách gốc
             for (FolderItem item : folderItems) {
-                // So sánh tên của mục (không phân biệt chữ hoa/thường)
                 if (item.getName().toLowerCase().contains(query.toLowerCase())) {
-                    // Nếu khớp, thêm vào danh sách đã lọc
                     filteredList.add(item);
                 }
             }
         }
 
-        // Gọi phương thức displayFolderItems đã được sửa đổi để cập nhật giao diện
         displayFolderItems(filteredList);
     }
 
-
-
-    /**
-     * Xử lý logout
-     */
     private void handleLogout() {
         tokenManager.clearToken();
         navigateToLogin();

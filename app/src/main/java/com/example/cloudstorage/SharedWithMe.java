@@ -49,7 +49,6 @@ public class SharedWithMe extends AppCompatActivity {
 
         ImageView backButton = findViewById(R.id.btn_back);
         backButton.setOnClickListener(v -> {
-            // Finish the activity to go back to the previous screen
             finish();
         });
 
@@ -71,7 +70,6 @@ public class SharedWithMe extends AppCompatActivity {
      * Load shared items from backend
      */
     private void loadSharedItems() {
-        // Clear existing items
         foldersListLayout.removeAllViews();
         folderItems.clear();
 
@@ -113,14 +111,9 @@ public class SharedWithMe extends AppCompatActivity {
         });
     }
 
-    /**
-     * Display folder items (albums and media) in FlexboxLayout
-     */
     private void displayFolderItems() {
-        // Clear existing views
         foldersListLayout.removeAllViews();
 
-        // Create view for each folder item
         LayoutInflater inflater = LayoutInflater.from(this);
 
         for (FolderItem item : folderItems) {
@@ -136,18 +129,13 @@ public class SharedWithMe extends AppCompatActivity {
             TextView tvFolderName = itemView.findViewById(R.id.tv_folder_name);
             TextView tvFolderDate = itemView.findViewById(R.id.tv_folder_date);
 
-            // Set folder name and date
             tvFolderName.setText(item.getName());
             tvFolderDate.setText(item.getDate());
 
-            // Set icon based on type
             if (item.isAlbum()) {
-                // Album - show folder icon
                 ivFolderIcon.setImageResource(R.drawable.folder);
             } else if (item.isMedia()) {
-                // Media - show thumbnail if image, or folder icon if video
                 if (item.getMedia().isImage()) {
-                    // Load image thumbnail using Glide
                     Glide.with(this)
                             .load(item.getMedia().getFilePath())
                             .placeholder(R.drawable.ic_images)
@@ -155,42 +143,30 @@ public class SharedWithMe extends AppCompatActivity {
                             .centerCrop()
                             .into(ivFolderIcon);
                 } else {
-                    // Video - use folder icon for now
                     ivFolderIcon.setImageResource(R.drawable.folder);
                 }
             }
 
-            // Set click listener for the item
             itemView.setOnClickListener(v -> {
                 if (item.isMedia()) {
-                    // Navigate to MediaDetail activity
                     Intent intent = new Intent(SharedWithMe.this, MediaDetail.class);
                     intent.putExtra("media_id", item.getId());
                     startActivity(intent);
                 } else if (item.isAlbum()) {
-                    // Navigate to Album detail activity
                     Toast.makeText(SharedWithMe.this, "Album: " + item.getName(), Toast.LENGTH_SHORT).show();
                 }
             });
 
-
-
-
-            // Set click listener for options menu
             if (ivFolderOptions != null) {
                 ivFolderOptions.setOnClickListener(v -> {
                     showOptionsMenu(v, item);
                 });
             }
 
-            // Add view to layout
             foldersListLayout.addView(itemView);
         }
     }
 
-    /**
-     * Show options menu for folder item
-     */
     private void showOptionsMenu(View view, FolderItem item) {
         PopupMenu popup = new PopupMenu(this, view);
         popup.getMenuInflater().inflate(R.menu.menu_shared_media_options, popup.getMenu());
