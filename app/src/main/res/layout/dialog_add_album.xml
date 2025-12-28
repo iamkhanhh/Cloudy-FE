@@ -8,11 +8,11 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Edit Folder Info"
-        android:textSize="20sp"
-        android:textStyle="bold"
+        android:layout_marginBottom="16dp"
+        android:text="Add Folder Info"
         android:textColor="@color/black"
-        android:layout_marginBottom="16dp"/>
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layout_album_name"
@@ -62,10 +62,10 @@
         <Button
             android:id="@+id/button_save"
             android:layout_width="0dp"
-            android:backgroundTint="#567DF4"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Save"
+            android:backgroundTint="#567DF4"
             android:layout_marginStart="8dp"/>
     </LinearLayout>
 

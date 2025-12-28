@@ -54,12 +54,16 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Cancel"
+            android:textColor="#567DF4"
+
             android:layout_marginEnd="8dp"/>
 
         <Button
             android:id="@+id/button_save"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:backgroundTint="#567DF4"
+
             android:layout_weight="1"
             android:text="Save"
             android:layout_marginStart="8dp"/>
