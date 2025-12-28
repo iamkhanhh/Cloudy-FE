@@ -14,7 +14,6 @@ public class ShareRequest {
     @SerializedName("body")
     private String body;
 
-    // Giả sử bạn cần gửi cả ID của media cần share
     @SerializedName("media_id")
     private String mediaId;
 

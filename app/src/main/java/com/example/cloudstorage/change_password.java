@@ -40,16 +40,13 @@ public class change_password extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_change_password);
 
-        // Khởi tạo TokenManager
         tokenManager = new TokenManager(this);
 
-        // Kiểm tra đăng nhập
         if (!tokenManager.isLoggedIn()) {
             navigateToLogin();
             return;
         }
 
-        // Tìm views
         currentPasswordInput = findViewById(R.id.current_password_input);
         newPasswordInput = findViewById(R.id.password_input);
         confirmPasswordInput = findViewById(R.id.confirm_password_input);
@@ -79,65 +76,57 @@ public class change_password extends AppCompatActivity {
         });
     }
 
-    /**
-     * Xử lý đổi mật khẩu
-     */
     private void handleChangePassword() {
         String currentPassword = currentPasswordInput.getText().toString().trim();
         String newPassword = newPasswordInput.getText().toString().trim();
         String confirmPassword = confirmPasswordInput.getText().toString().trim();
 
-        // Validate input
         if (currentPassword.isEmpty()) {
-            currentPasswordInput.setError("Vui lòng nhập mật khẩu hiện tại");
+            currentPasswordInput.setError("Please enter current password");
             currentPasswordInput.requestFocus();
             return;
         }
 
         if (newPassword.isEmpty()) {
-            newPasswordInput.setError("Vui lòng nhập mật khẩu mới");
+            newPasswordInput.setError("Please enter new password");
             newPasswordInput.requestFocus();
             return;
         }
 
         if (newPassword.length() < 8) {
-            newPasswordInput.setError("Mật khẩu mới phải có ít nhất 8 ký tự");
+            newPasswordInput.setError("New password must be at least 8 characters");
             newPasswordInput.requestFocus();
             return;
         }
 
-        // Validate password format (theo yêu cầu của BE)
         if (!newPassword.matches("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$")) {
-            newPasswordInput.setError("Mật khẩu phải chứa ít nhất 1 chữ cái, 1 số và 1 ký tự đặc biệt");
+            newPasswordInput.setError("Password must contain at least 1 letter, 1 number and 1 special character");
             newPasswordInput.requestFocus();
             return;
         }
 
         if (confirmPassword.isEmpty()) {
-            confirmPasswordInput.setError("Vui lòng xác nhận mật khẩu");
+            confirmPasswordInput.setError("Please confirm password");
             confirmPasswordInput.requestFocus();
             return;
         }
 
         if (!newPassword.equals(confirmPassword)) {
-            confirmPasswordInput.setError("Mật khẩu xác nhận không khớp");
+            confirmPasswordInput.setError("Passwords do not match");
             confirmPasswordInput.requestFocus();
             return;
         }
 
         if (currentPassword.equals(newPassword)) {
-            newPasswordInput.setError("Mật khẩu mới phải khác mật khẩu hiện tại");
+            newPasswordInput.setError("New password must be different from current password");
             newPasswordInput.requestFocus();
             return;
         }
 
-        // Disable inputs
         setInputsEnabled(false);
 
-        // Tạo request
         ChangePasswordRequest request = new ChangePasswordRequest(currentPassword, newPassword);
 
-        // Gọi API
         ApiClient.getApiService(this).changePassword(request)
                 .enqueue(new Callback<ApiResponse<Void>>() {
                     @Override
@@ -148,25 +137,23 @@ public class change_password extends AppCompatActivity {
                             ApiResponse<Void> apiResponse = response.body();
 
                             Toast.makeText(change_password.this,
-                                    apiResponse.getMessageOrDefault("Đổi mật khẩu thành công!"),
+                                    apiResponse.getMessageOrDefault("Password changed successfully!"),
                                     Toast.LENGTH_SHORT).show();
 
-                            // Clear inputs
                             currentPasswordInput.setText("");
                             newPasswordInput.setText("");
                             confirmPasswordInput.setText("");
 
-                            // Quay lại màn hình trước hoặc logout
                             finish();
 
                         } else {
-                            String errorMsg = "Đổi mật khẩu thất bại";
+                            String errorMsg = "Failed to change password";
 
                             try {
                                 if (response.errorBody() != null) {
                                     String errorJson = response.errorBody().string();
                                     JSONObject obj = new JSONObject(errorJson);
-                                    errorMsg = obj.optString("message", "Đổi mật khẩu thất bại");
+                                    errorMsg = obj.optString("message", "Failed to change password");
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -174,7 +161,6 @@ public class change_password extends AppCompatActivity {
 
                             Toast.makeText(change_password.this, errorMsg, Toast.LENGTH_LONG).show();
 
-                            // Nếu lỗi 401 (Unauthorized), chuyển về login
                             if (response.code() == 401) {
                                 tokenManager.clearToken();
                                 navigateToLogin();
@@ -186,7 +172,7 @@ public class change_password extends AppCompatActivity {
                     public void onFailure(@NonNull Call<ApiResponse<Void>> call, @NonNull Throwable t) {
                         setInputsEnabled(true);
 
-                        String errorMsg = "Lỗi kết nối: " + t.getMessage();
+                        String errorMsg = "Connection error: " + t.getMessage();
                         Toast.makeText(change_password.this, errorMsg, Toast.LENGTH_LONG).show();
 
                         t.printStackTrace();
@@ -194,26 +180,19 @@ public class change_password extends AppCompatActivity {
                 });
     }
 
-    /**
-     * Enable/disable inputs
-     */
     private void setInputsEnabled(boolean enabled) {
         currentPasswordInput.setEnabled(enabled);
         newPasswordInput.setEnabled(enabled);
         confirmPasswordInput.setEnabled(enabled);
         changePasswordButton.setEnabled(enabled);
 
-        // Hiển thị loading text trên button
         if (enabled) {
             changePasswordButton.setText("Change Password");
         } else {
-            changePasswordButton.setText("Đang xử lý...");
+            changePasswordButton.setText("Processing...");
         }
     }
 
-    /**
-     * Chuyển về màn hình login
-     */
     private void navigateToLogin() {
         Intent intent = new Intent(change_password.this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

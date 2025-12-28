@@ -294,17 +294,12 @@ public class SharedWithMe extends AppCompatActivity {
 
         popup.show();
     }
-    /**
-     * Xử lý logout
-     */
+
     private void handleLogout() {
         tokenManager.clearToken();
         navigateToLogin();
     }
 
-    /**
-     * Chuyển về màn hình login
-     */
     private void navigateToLogin() {
         Intent intent = new Intent(SharedWithMe.this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

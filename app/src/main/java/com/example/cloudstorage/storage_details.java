@@ -56,17 +56,13 @@ public class storage_details extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_storage_details);
 
-        // Khởi tạo TokenManager
         tokenManager = new TokenManager(this);
 
-        // Khởi tạo views
         initViews();
 
-        // Setup back button
         ImageView btnBack = findViewById(R.id.btn_back);
         btnBack.setOnClickListener(v -> finish());
 
-        // Gọi API để lấy storage data
         loadStorageData();
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -76,11 +72,7 @@ public class storage_details extends AppCompatActivity {
         });
     }
 
-    /**
-     * Khởi tạo tất cả views
-     */
     private void initViews() {
-        // Progress bar và text
         storageProgressBar = findViewById(R.id.storage_progressbar);
         usedSpaceText = findViewById(R.id.used_space_text);
         totalSpaceText = findViewById(R.id.total_space_text);
@@ -107,14 +99,10 @@ public class storage_details extends AppCompatActivity {
         imageIcon.setImageResource(R.drawable.ic_images);
         videoIcon.setImageResource(R.drawable.ic_video);
 
-        // Hide file count initially (backend doesn't provide this data)
         imageFileCount.setVisibility(View.GONE);
         videoFileCount.setVisibility(View.GONE);
     }
 
-    /**
-     * Gọi API để lấy storage data
-     */
     private void loadStorageData() {
         ApiClient.getApiService(this).getStorage()
                 .enqueue(new Callback<ApiResponse<StorageData>>() {
@@ -127,16 +115,14 @@ public class storage_details extends AppCompatActivity {
                                 StorageData storageData = apiResponse.getData();
                                 updateUI(storageData);
                             } else {
-                                Toast.makeText(storage_details.this, "Không có dữ liệu storage", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(storage_details.this, "No storage data", Toast.LENGTH_SHORT).show();
                             }
 
                         } else {
-                            Toast.makeText(storage_details.this, "Không thể tải thông tin storage", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(storage_details.this, "Cannot load storage information", Toast.LENGTH_SHORT).show();
 
-                            // Nếu lỗi 401 (Unauthorized), chuyển về login
                             if (response.code() == 401) {
                                 tokenManager.clearToken();
-                                // Navigate to login
                                 finish();
                             }
                         }
@@ -144,15 +130,12 @@ public class storage_details extends AppCompatActivity {
 
                     @Override
                     public void onFailure(@NonNull Call<ApiResponse<StorageData>> call, @NonNull Throwable t) {
-                        Toast.makeText(storage_details.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(storage_details.this, "Connection error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                         t.printStackTrace();
                     }
                 });
     }
 
-    /**
-     * Cập nhật UI với dữ liệu từ API
-     */
     private void updateUI(StorageData storageData) {
         double totalUsed = storageData.getTotal();
         double imageSize = storageData.getImage();

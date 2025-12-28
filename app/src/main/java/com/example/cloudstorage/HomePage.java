@@ -88,22 +88,18 @@ public class HomePage extends BaseActivity {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                     selectedMediaUri = result.getData().getData();
                     if (imagePreview != null && selectedMediaUri != null) {
-                        // Kiểm tra loại MIME của file được chọn
                         String mimeType = getContentResolver().getType(selectedMediaUri);
 
                         if (mimeType != null && mimeType.startsWith("video")) {
-                            // Nếu là video, hiển thị frame đầu tiên làm thumbnail
-                            // Glide có thể làm điều này một cách tự động
                             Glide.with(this)
                                     .load(selectedMediaUri)
-                                    .placeholder(R.drawable.ic_launcher_background) // Ảnh giữ chỗ
-                                    .error(R.drawable.ic_launcher_foreground) // Ảnh lỗi (thay bằng icon video)
+                                    .placeholder(R.drawable.ic_launcher_background)
+                                    .error(R.drawable.ic_launcher_foreground)
                                     .into(imagePreview);
                         } else {
-                            // Nếu là ảnh (hoặc không xác định được), hiển thị như bình thường
                             Glide.with(this)
                                     .load(selectedMediaUri)
-                                    .placeholder(R.drawable.ic_launcher_background) // Ảnh giữ chỗ
+                                    .placeholder(R.drawable.ic_launcher_background)
                                     .into(imagePreview);
                         }
                     }
@@ -397,32 +393,23 @@ public class HomePage extends BaseActivity {
      * Show options menu for folder item
      */
     private void showOptionsMenu(View view, FolderItem item) {
-        // 1. Tạo PopupMenu
         PopupMenu popup = new PopupMenu(this, view);
-        View itemView = (View) view.getParent().getParent(); // Điều chỉnh nếu cần
+        View itemView = (View) view.getParent().getParent();
         TextView nameTextView = itemView.findViewById(R.id.tv_folder_name);
         if (nameTextView == null) {
             Log.e(TAG, "Could not find name TextView in itemView.");
-            // Fallback: Tải lại toàn bộ trang nếu không tìm thấy TextView
-            // (Đây là giải pháp an toàn để tránh crash và vẫn cập nhật được)
-            nameTextView = new TextView(this); // Tạo một đối tượng giả để tránh lỗi
+            nameTextView = new TextView(this);
         }
 
-        // 2. Chọn file menu dựa trên loại item
         if (item.getType() == 1) {
-//        public static final int TYPE_MEDIA = 1;
-            // Nếu là file, dùng menu có đủ tùy chọn
             popup.getMenuInflater().inflate(R.menu.menu_media_options, popup.getMenu());
         } else if (item.getType()== 0) {
-//        public static final int TYPE_ALBUM = 0;
-            // Nếu là thư mục, dùng menu đã lược bỏ
             popup.getMenuInflater().inflate(R.menu.menu_folder_options, popup.getMenu());
         } else {
-            // Trường hợp khác, có thể không hiển thị menu hoặc dùng menu mặc định
             return;
         }
 
-        final TextView finalNameTextView = nameTextView; // Cần một biến final để dùng trong lambda
+        final TextView finalNameTextView = nameTextView;
         popup.setOnMenuItemClickListener(menuItem -> {
             int itemId = menuItem.getItemId();
 
@@ -432,9 +419,7 @@ public class HomePage extends BaseActivity {
                 } else if (item.isAlbum()) {
                     showEditAlbumDialog(item, finalNameTextView);
                 }                return true;
-                // xóa file
             } else if (itemId == R.id.menu_delete) {
-                // Delete media or album based on item type
                 if (item.isMedia()) {
                     deleteMediaItem(item.getId());
                 } else if (item.isAlbum()) {
@@ -442,7 +427,6 @@ public class HomePage extends BaseActivity {
                 }
                 return true;
 
-                // tải file
             } else if (itemId == R.id.menu_download) {
                 if (item.isMedia()){
                 Media media = item.getMedia();
@@ -458,12 +442,10 @@ public class HomePage extends BaseActivity {
 
 
 
-                // chia sẻ backend
             } else if (itemId == R.id.menu_share) {
                 shareItem(item);
                 return true;
 
-                // chia sẻ email
             } else if (itemId == R.id.menu_email_share) {
                 showSendEmailDialog(item);
                 return true;
@@ -663,8 +645,8 @@ public class HomePage extends BaseActivity {
 
         if (dialog.getWindow() != null) {
             dialog.getWindow().setLayout(
-                    (int) (getResources().getDisplayMetrics().widthPixels * 0.90), // Chiều rộng 90% màn hình
-                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT // Chiều cao tự động
+                    (int) (getResources().getDisplayMetrics().widthPixels * 0.90),
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
             );
         }
 
@@ -675,17 +657,14 @@ public class HomePage extends BaseActivity {
         Button cancelButton = dialog.findViewById(R.id.button_cancel);
         Button uploadButton = dialog.findViewById(R.id.button_upload);
 
-        // Set click listener for the "Select Image" button
         selectImageButton.setOnClickListener(v -> {
-            // Tạo một Intent để cho phép chọn cả ảnh và video
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.setType("image/*, video/*"); // Chỉ định cả hai loại MIME
+            intent.setType("image/*, video/*");
 
             intent.setType("*/*");
             String[] mimeTypes = {"image/*", "video/*"};
             intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
 
-            // Mở trình chọn file
             imagePickerLauncher.launch(intent);
         });
 
@@ -945,29 +924,25 @@ public class HomePage extends BaseActivity {
         final Dialog emailDialog = new Dialog(this);
         emailDialog.setContentView(R.layout.dialog_send_email);
 
-        // Set chiều rộng cho dialog
         if (emailDialog.getWindow() != null) {
             emailDialog.getWindow().setLayout(
-                    (int) (getResources().getDisplayMetrics().widthPixels * 0.95), // Rộng 95% màn hình
+                    (int) (getResources().getDisplayMetrics().widthPixels * 0.95),
                     android.view.ViewGroup.LayoutParams.WRAP_CONTENT
             );
         }
 
-        // Lấy view từ layout của dialog
         TextInputEditText toEmailEditText = emailDialog.findViewById(R.id.edit_text_to_email);
         TextInputEditText subjectEditText = emailDialog.findViewById(R.id.edit_text_subject);
         TextInputEditText bodyEditText = emailDialog.findViewById(R.id.edit_text_body);
         Button cancelButton = emailDialog.findViewById(R.id.button_cancel_email);
         Button sendButton = emailDialog.findViewById(R.id.button_send_email);
 
-        // Gán giá trị mặc định (nếu cần)
         subjectEditText.setText("Check out this media: " + item.getName());
         bodyEditText.setText("Hi, I wanted to share this media with you.");
 
-        // Xử lý sự kiện cho nút Cancel
         cancelButton.setOnClickListener(v -> emailDialog.dismiss());
 
-        // Xử lý sự kiện cho nút Send
+
         sendButton.setOnClickListener(v -> {
             String toEmail = toEmailEditText.getText().toString().trim();
             String subject = subjectEditText.getText().toString().trim();
@@ -982,28 +957,6 @@ public class HomePage extends BaseActivity {
                 return;
             }
 
-//            // 1. Tạo một Intent để gửi email
-//            Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
-//
-//            // 2. Thiết lập dữ liệu cho Intent
-//            // Dùng "mailto:" để đảm bảo chỉ các ứng dụng email mới xử lý Intent này
-//            emailIntent.setData(Uri.parse("mailto:"));
-//
-//            // 3. Đưa các thông tin cần thiết vào Intent
-//            emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{ toEmail }); // EXTRA_EMAIL là một mảng String
-//            emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
-//            emailIntent.putExtra(Intent.EXTRA_TEXT, body);
-//
-//            // 4. Kiểm tra xem có ứng dụng nào trên điện thoại có thể xử lý Intent này không
-//            if (emailIntent.resolveActivity(getPackageManager()) != null) {
-//                // Nếu có, bắt đầu Activity (mở ứng dụng email)
-//                startActivity(emailIntent);
-//                emailDialog.dismiss(); // Đóng dialog của bạn
-//            } else {
-//                // Nếu không có ứng dụng email nào được cài đặt
-//                Toast.makeText(HomePage.this, "No email client found.", Toast.LENGTH_SHORT).show();
-//            }
-
             String fileUrl = item.getMedia().getFilePath();
             if (fileUrl == null || fileUrl.isEmpty()) {
                 Toast.makeText(this, "File URL is not available.", Toast.LENGTH_SHORT).show();
@@ -1011,7 +964,7 @@ public class HomePage extends BaseActivity {
             }
             Log.d(TAG, "File URL: " + fileUrl);
 
-            emailDialog.dismiss(); // Đóng dialog nhập liệu
+            emailDialog.dismiss();
             downloadAndShareFile(fileUrl, item.getName(), toEmail, subject, body);
 
 
@@ -1021,7 +974,6 @@ public class HomePage extends BaseActivity {
     }
 
     private void downloadAndShareFile(String fileUrl, String fileName, String toEmail, String subject, String body) {
-        // Hiển thị dialog loading trong khi tải
         ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Preparing file for sharing...");
         progressDialog.setCancelable(false);
@@ -1029,31 +981,26 @@ public class HomePage extends BaseActivity {
 
         new Thread(() -> {
             try {
-                // Tạo thư mục cache nếu chưa có
                 File cachePath = new File(getCacheDir(), "shared_files");
                 cachePath.mkdirs();
                 File tempMedia = new File(cachePath, fileName);
 
-                // Tải file bằng OkHttpClient
                 OkHttpClient client = new OkHttpClient();
                 Request request = new Request.Builder().url(fileUrl).build();
                 okhttp3.Response response = client.newCall(request).execute();
 
                 if (response.isSuccessful() && response.body() != null) {
-                    // Ghi file vào bộ nhớ cache
                     BufferedSink sink = Okio.buffer(Okio.sink(tempMedia));
                     sink.writeAll(response.body().source());
                     sink.close();
                     response.close();
 
-                    // Lấy URI của file đã tải bằng FileProvider (cách làm an toàn nhất)
                     Uri fileUri = FileProvider.getUriForFile(
                             HomePage.this,
-                            getApplicationContext().getPackageName() + ".provider", // Phải khớp với authorities trong Manifest
+                            getApplicationContext().getPackageName() + ".provider",
                             tempMedia
                     );
 
-                    // Chạy trên luồng UI để mở Intent
                     runOnUiThread(() -> {
                         progressDialog.dismiss();
                         shareFileViaIntent(fileUri, toEmail, subject, body);
@@ -1076,27 +1023,19 @@ public class HomePage extends BaseActivity {
         }).start();
     }
 
-    // Thêm phương thức mới này vào HomePage.java
-
     private void shareFileViaIntent(Uri fileUri, String toEmail, String subject, String body) {
-        // Dùng ACTION_SEND để có thể đính kèm file
         Intent emailIntent = new Intent(Intent.ACTION_SEND);
 
-        // Xác định loại Intent và loại MIME
         emailIntent.setType(getContentResolver().getType(fileUri));
 
-        // Đặt các thông tin email
         emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{toEmail});
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
         emailIntent.putExtra(Intent.EXTRA_TEXT, body);
 
-        // Đính kèm file
         emailIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
 
-        // Thêm cờ để cấp quyền đọc URI cho ứng dụng email
         emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-        // Tạo Chooser để người dùng chọn ứng dụng
         Intent chooser = Intent.createChooser(emailIntent, "Share file via...");
 
         if (chooser.resolveActivity(getPackageManager()) != null) {
@@ -1106,8 +1045,6 @@ public class HomePage extends BaseActivity {
         }
     }
 
-
-    // Thêm vào HomePage.java
     private void showEditMediaDialog(FolderItem item, TextView nameTextView) {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_edit_media);
@@ -1119,7 +1056,6 @@ public class HomePage extends BaseActivity {
         Button cancelButton = dialog.findViewById(R.id.button_cancel);
         Button saveButton = dialog.findViewById(R.id.button_save);
 
-        // Điền thông tin hiện tại của file
         Media media = item.getMedia();
         if (media == null) {
             Toast.makeText(this, "Media data not found.", Toast.LENGTH_SHORT).show();
@@ -1188,7 +1124,6 @@ public class HomePage extends BaseActivity {
         });
     }
 
-    // Thêm vào HomePage.java
     private void showEditAlbumDialog(FolderItem item, TextView nameTextView) {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_edit_album);
@@ -1199,7 +1134,6 @@ public class HomePage extends BaseActivity {
         Button cancelButton = dialog.findViewById(R.id.button_cancel);
         Button saveButton = dialog.findViewById(R.id.button_save);
 
-        // Điền thông tin hiện tại của folder
         Album album = item.getAlbum();
         if (album == null) {
             Toast.makeText(this, "Folder data not found.", Toast.LENGTH_SHORT).show();
@@ -1319,14 +1253,13 @@ public class HomePage extends BaseActivity {
             return;
         }
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(fileUrl));
-        request.setTitle(fileName); // Tên hiển thị trên thanh thông báo
-        request.setDescription("Downloading " + fileName); // Mô tả chi tiết
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED); // Hiển thị thông báo khi tải và khi hoàn tất
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName); // Lưu file vào thư mục "Downloads" của điện thoại
-        request.setAllowedOverMetered(true); // Cho phép tải bằng dữ liệu di động
-        request.setAllowedOverRoaming(true); // Cho phép tải khi chuyển vùng
+        request.setTitle(fileName);
+        request.setDescription("Downloading " + fileName);
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+        request.setAllowedOverMetered(true);
+        request.setAllowedOverRoaming(true);
 
-        // 4. Lấy dịch vụ DownloadManager của hệ thống và đưa yêu cầu vào hàng đợi
         DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         if (downloadManager != null) {
             downloadManager.enqueue(request);
@@ -1336,18 +1269,11 @@ public class HomePage extends BaseActivity {
         }
     }
 
-
-    /**
-     * Xử lý logout
-     */
     private void handleLogout() {
         tokenManager.clearToken();
         navigateToLogin();
     }
 
-    /**
-     * Chuyển về màn hình login
-     */
     private void navigateToLogin() {
         Intent intent = new Intent(HomePage.this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
