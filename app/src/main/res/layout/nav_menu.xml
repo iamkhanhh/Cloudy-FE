@@ -87,6 +87,7 @@
                 app:shapeAppearanceOverlay="@style/CircleImageView" />
 
             <TextView
+                android:id="@+id/nav_user_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"

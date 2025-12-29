@@ -49,6 +49,7 @@ import com.example.cloudstorage.models.Media;
 import com.example.cloudstorage.models.PresignedUrl;
 import com.example.cloudstorage.models.PresignedUrlRequest;
 import com.example.cloudstorage.models.Share;
+import com.example.cloudstorage.models.User;
 import com.example.cloudstorage.utils.TokenManager;
 import com.google.android.flexbox.FlexboxLayout;
 
@@ -82,6 +83,8 @@ public class HomePage extends BaseActivity {
     private ImageView addFileButton;
     private ImageView imagePreview; // To hold a reference to the ImageView in the dialog
     private Uri selectedMediaUri; // To store the URI of the selected image
+
+    private TextView navUserNameTextView;
 
     // Handles the result from the image picker
     // Handles the result from the image picker
@@ -143,6 +146,8 @@ public class HomePage extends BaseActivity {
         TextView nav_share_text = findViewById(R.id.nav_shared_text);
         TextView nav_storage_text = findViewById(R.id.nav_storage_text);
         TextView nav_help_text = findViewById(R.id.nav_help_text);
+
+        navUserNameTextView =  findViewById(R.id.nav_user_name);
 
 
 
@@ -229,6 +234,8 @@ public class HomePage extends BaseActivity {
         addFileButton.setOnClickListener(v -> showAddFileMenu(v));
 
         addSearchFunctionality();
+
+        loadUserProfile();
 
     }
 
@@ -1324,5 +1331,46 @@ public class HomePage extends BaseActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
+    }
+
+    private void loadUserProfile() {
+        ApiClient.getApiService(this).getProfile().enqueue(new Callback<ApiResponse<User>>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponse<User>> call, @NonNull Response<ApiResponse<User>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<User> apiResponse = response.body();
+
+                    // Extract user from data field
+                    if (apiResponse.getData() != null) {
+                        User user = apiResponse.getData();
+                        displayUserInfo(user);
+                    } else {
+                        Toast.makeText(HomePage.this, "No user data", Toast.LENGTH_SHORT).show();
+                    }
+
+                } else {
+                    Toast.makeText(HomePage.this, "Cannot load user information", Toast.LENGTH_SHORT).show();
+
+                    if (response.code() == 401) {
+                        tokenManager.clearToken();
+                        navigateToLogin();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ApiResponse<User>> call, @NonNull Throwable t) {
+                Toast.makeText(HomePage.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                t.printStackTrace();
+            }
+        });
+    }
+
+    private void displayUserInfo(User user) {
+
+        if (navUserNameTextView != null) {
+            navUserNameTextView.setText(user.getName() != null ? user.getName() : "N/A");
+        }
+
     }
 }
